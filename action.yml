@@ -17,6 +17,7 @@ runs:
         PDK_ROOT=/home/runner/pdk
         PDK=sky130A
         EOF
+
     - name: Checkout tt-support-tools repo
       uses: actions/checkout@v3
       with:
@@ -84,3 +85,13 @@ runs:
       with:
         path: 'gds_render.png'
         key: ${{ runner.os }}-png-${{ github.run_id }}
+
+    - name: Publish GDS artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: GDS
+        path: |
+          src/*
+          runs/wokwi/results/final/*
+          runs/wokwi/reports/metrics.csv
+          runs/wokwi/reports/synthesis/1-synthesis*
