@@ -6,6 +6,15 @@ GitHub action for hardening your Tiny Tapeout design into a manufacturable GDS f
 
 Use the [tt04-submission-template](https://github.com/TinyTapeout/tt04-submission-template) as a starting point for your submission.
 
+## Updating the action
+
+To update the release tag of the action, run the following command (replace `tt04` with the current tiny tapeout version):
+
+```bash
+git tag -fa tt04 -m "Update action to tt04"
+git push origin tt04 --force
+```
+
 ## License
 
 Copyright 2023 Uri Shaked
@@ -14,7 +23,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
 
-  http://www.apache.org/licenses/LICENSE-2.0
+http://www.apache.org/licenses/LICENSE-2.0
 
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
