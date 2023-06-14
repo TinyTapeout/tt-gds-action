@@ -1,0 +1,86 @@
+name: 'Tiny Tapeout GDS Action'
+description: 'This action builds a GDS file from your Tiny Tapeout project'
+branding:
+  color: purple
+  icon: layers
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Set up environment variables
+      shell: bash
+      run: |
+        cat << EOF >> $GITHUB_ENV
+        OPENLANE_TAG=2023.02.14
+        OPENLANE_IMAGE_NAME=efabless/openlane:4cd0986b3ae550cdf7a6d0fba4e0657012f635d8-amd64
+        OPENLANE_ROOT=/home/runner/openlane
+        PDK_ROOT=/home/runner/pdk
+        PDK=sky130A
+        EOF
+    - name: Checkout tt-support-tools repo
+      uses: actions/checkout@v3
+      with:
+        repository: tinytapeout/tt-support-tools
+        path: tt
+        ref: tt03p5
+
+    - name: Setup python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+    - name: Install tt-support-tools dependencies
+      shell: bash
+      run: pip install -r tt/requirements.txt
+
+    - name: Fetch verilog and build config
+      shell: bash
+      run: ./tt/tt_tool.py --create-user-config
+
+    - name: Install OpenLane
+      shell: bash
+      run: |
+        git clone --depth=1 --branch $OPENLANE_TAG https://github.com/The-OpenROAD-Project/OpenLane.git $OPENLANE_ROOT
+        cd $OPENLANE_ROOT
+        make
+
+    - name: Make GDS with OpenLane
+      shell: bash
+      run: ./tt/tt_tool.py --harden
+
+    - name: Show build files (for debugging)
+      shell: bash
+      run: find runs/wokwi/
+
+    - name: Yosys warnings
+      shell: bash
+      run: ./tt/tt_tool.py --print-warnings >> $GITHUB_STEP_SUMMARY
+
+    - name: Routing summary
+      shell: bash
+      run: ./tt/tt_tool.py --print-stats >> $GITHUB_STEP_SUMMARY
+
+    - name: Cell usage summary
+      shell: bash
+      run: ./tt/tt_tool.py --print-cell-category >> $GITHUB_STEP_SUMMARY
+
+    - name: populate src cache
+      uses: actions/cache@v3
+      with:
+        path: src
+        key: ${{ runner.os }}-src-${{ github.run_id }}
+
+    - name: populate runs cache
+      uses: actions/cache@v3
+      with:
+        path: runs
+        key: ${{ runner.os }}-runs-${{ github.run_id }}
+
+    - name: Create PNG
+      shell: bash
+      run: ./tt/tt_tool.py --create-png
+
+    - name: populate png cache
+      uses: actions/cache@v3
+      with:
+        path: 'gds_render.png'
+        key: ${{ runner.os }}-png-${{ github.run_id }}
