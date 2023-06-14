@@ -1,0 +1,79 @@
+name: 'Tiny Tapeout Viewer Action'
+description: 'This action create a 3D model of your Tiny Tapeout project'
+branding:
+  color: purple
+  icon: eye
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Checkout GDS2glTF repo
+      uses: actions/checkout@v3
+      with:
+        repository: mbalestrini/GDS2glTF
+
+    - name: Setup python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+
+    - name: Download GDS artifact
+      uses: actions/download-artifact@v3
+      with:
+        name: GDS
+
+    - name: Download gds_render (png) artifact
+      uses: actions/download-artifact@v3
+      with:
+        name: gds_render
+        path: gh-pages
+
+    - name: gds2gltf
+      shell: bash
+      run: |
+        python -m pip install numpy gdspy triangle pygltflib
+        cp runs/wokwi/results/final/gds/*.gds tinytapeout.gds
+        python3 gds2gltf.py tinytapeout.gds
+        cp tinytapeout.gds.gltf gh-pages/tinytapeout.gds.gltf
+
+    - name: Generate HTML pages that redirects to viewer
+      shell: bash
+      run: |
+        cat << EOF >> gh-pages/index.html
+          <!DOCTYPE html>
+          <html lang="en">
+          <head>
+            <meta charset="UTF-8">
+            <meta http-equiv="X-UA-Compatible" content="IE=edge">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Redirecting to GDS Viewer...</title>
+          </head>
+          <body>
+            <script>
+              location.href = "https://gds-viewer.tinytapeout.com/?model=" + encodeURIComponent(location.href + '/tinytapeout.gds.gltf');
+            </script>
+          </body>
+          </html>
+        EOF
+
+    - name: Upload artifact
+      uses: actions/upload-pages-artifact@v1
+      with:
+        path: 'gh-pages'
+
+    - name: Deploy to GitHub Pages
+      id: deployment
+      uses: actions/deploy-pages@v2
+
+    - name: Display preview in workflow summary
+      shell: bash
+      run: |
+        PAGE_URL=${{ steps.deployment.outputs.page_url }}
+        PAGE_URL=$(echo "$PAGE_URL" | sed -e 's/\/$//')
+        cat << EOF >> $GITHUB_STEP_SUMMARY
+        # 3D Viewer
+        [open 3D viewer](https://gds-viewer.tinytapeout.com/?model=$PAGE_URL/tinytapeout.gds.gltf)
+
+        # 2D Preview
+        ![png]($PAGE_URL/gds_render.png)
+        EOF

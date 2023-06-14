@@ -64,28 +64,6 @@ runs:
       shell: bash
       run: ./tt/tt_tool.py --print-cell-category >> $GITHUB_STEP_SUMMARY
 
-    - name: populate src cache
-      uses: actions/cache@v3
-      with:
-        path: src
-        key: ${{ runner.os }}-src-${{ github.run_id }}
-
-    - name: populate runs cache
-      uses: actions/cache@v3
-      with:
-        path: runs
-        key: ${{ runner.os }}-runs-${{ github.run_id }}
-
-    - name: Create PNG
-      shell: bash
-      run: ./tt/tt_tool.py --create-png
-
-    - name: populate png cache
-      uses: actions/cache@v3
-      with:
-        path: 'gds_render.png'
-        key: ${{ runner.os }}-png-${{ github.run_id }}
-
     - name: Publish GDS artifacts
       uses: actions/upload-artifact@v3
       with:
@@ -95,3 +73,13 @@ runs:
           runs/wokwi/results/final/*
           runs/wokwi/reports/metrics.csv
           runs/wokwi/reports/synthesis/1-synthesis*
+
+    - name: Create PNG
+      shell: bash
+      run: ./tt/tt_tool.py --create-png
+
+    - name: Upload gds_render (png) artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: gds_render
+        path: 'gds_render.png'
