@@ -1,0 +1,42 @@
+name: 'Tiny Tapeout Docs Action'
+description: 'This action create the documentation of your Tiny Tapeout project'
+branding:
+  color: purple
+  icon: book-open
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Checkout tt-support-tools repo
+      uses: actions/checkout@v3
+      with:
+        repository: tinytapeout/tt-support-tools
+        path: tt
+        ref: tt03p5
+
+    - name: Setup python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+    - shell: bash
+      run: pip install -r tt/requirements.txt
+
+    - name: Check docs (info.yaml)
+      shell: bash
+      run: ./tt/tt_tool.py --check-docs
+
+    - name: Install Pandoc
+      shell: bash
+      run: |
+        sudo apt-get update -y
+        sudo apt-get install -y pandoc texlive-xetex
+
+    - name: Create PDF
+      shell: bash
+      run: ./tt/tt_tool.py --create-pdf
+
+    - name: Archive PDF
+      uses: actions/upload-artifact@v3
+      with:
+        name: PDF
+        path: datasheet.pdf
