@@ -64,6 +64,15 @@ runs:
       shell: bash
       run: ./tt/tt_tool.py --print-cell-category >> $GITHUB_STEP_SUMMARY
 
+    - name: Publish build logs
+      if: success() || failure()
+      uses: actions/upload-artifact@v3
+      with:
+        name: GDS_logs
+        path: |
+          src/*
+          runs/wokwi/*
+
     - name: Publish GDS artifacts
       uses: actions/upload-artifact@v3
       with:
