@@ -18,6 +18,13 @@ runs:
         PDK=sky130A
         EOF
 
+    # Install librsvg2-bin (for rsvg-convert) and pngquant (for heavy PNG compression)
+    - name: Install prerequisites
+      uses: awalsh128/cache-apt-pkgs-action@latest
+      with:
+        packages: librsvg2-bin pngquant
+        version: tt04 # I think naming a version builds a reusable packages cache for that name.
+
     - name: Checkout tt-support-tools repo
       uses: actions/checkout@v3
       with:
@@ -83,9 +90,20 @@ runs:
           runs/wokwi/reports/metrics.csv
           runs/wokwi/reports/synthesis/1-synthesis*
 
-    - name: Create PNG
+    # Create and store PNG...
+    - name: Render SVG from GDS
       shell: bash
-      run: ./tt/tt_tool.py --create-png
+      run: ./tt/tt_tool.py --create-svg
+
+    - name: Convert SVG to PNG
+      shell: bash
+      run: rsvg-convert --unlimited gds_render.svg -s <(echo 'text{display:none;}') -o gds_render_png24.png --no-keep-image-data
+
+    - name: Shrink PNG
+      shell: bash
+      run: |
+        pngquant --quality 10-30 --speed 1 --nofs --strip --output gds_render.png gds_render_png24.png
+        ls -al gds_render*.png
 
     - name: Upload gds_render (png) artifact
       uses: actions/upload-artifact@v3
