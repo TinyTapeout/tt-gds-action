@@ -36,6 +36,8 @@ runs:
       uses: actions/setup-python@v4
       with:
         python-version: '3.10'
+        cache: 'pip' # caching pip dependencies
+
     - name: Install tt-support-tools dependencies
       shell: bash
       run: pip install -r tt/requirements.txt
