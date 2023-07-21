@@ -22,6 +22,7 @@ runs:
     # Set Python up and install cocotb
     - name: setup python
       uses: actions/setup-python@v4
+      shell: bash
       with:
         python-version: '3.10'
         cache: 'pip'
