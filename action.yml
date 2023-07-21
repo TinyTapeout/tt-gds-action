@@ -51,8 +51,6 @@ runs:
       run: |
         git clone --depth=1 --branch $OPENLANE_TAG https://github.com/The-OpenROAD-Project/OpenLane.git $OPENLANE_ROOT
         cd $OPENLANE_ROOT
-        # Workaround for broken volare 0.9.0:
-        sed -i 's/pip install --upgrade --no-cache-dir volare/pip install --upgrade --no-cache-dir volare==0.8.0/' Makefile
         make
 
     - name: Make GDS with OpenLane
