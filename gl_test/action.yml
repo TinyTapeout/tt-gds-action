@@ -12,25 +12,44 @@ runs:
       with:
         name: GDS
 
+    - name: Set up environment variables
+      shell: bash
+      run: |
+        cat << EOF >> $GITHUB_ENV
+        PDK_ROOT=/home/runner/pdk
+        PDK=sky130A
+        EOF
+
+    - name: Install Sky130 PDK
+      uses: TinyTapeout/volare-action@v1
+      with:
+        pdk_name: sky130
+        pdk_version: 12df12e2e74145e31c5a13de02f9a1e176b56e67
+        pdk_root: /home/runner/pdk
+
     # for debugging, show all the files
     - name: show files
+      shell: bash
       run: |
         pwd
         find .
 
-    # install oss fpga tools for iVerilog
-    - name: install oss-cad-suite
-      uses: YosysHQ/setup-oss-cad-suite@v2
+    # Set Python up and install cocotb
+    - name: setup python
+      uses: actions/setup-python@v4
       with:
-          python-override: true
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-    - run: | 
-        yosys --version
-        iverilog -V
-        cocotb-config --libpython
-        cocotb-config --python-bin
+        python-version: '3.10'
+
+    - name: install cocotb
+      shell: bash
+      run: pip install cocotb==1.8.0
+
+    - name: install iverilog
+      shell: bash
+      run: sudo apt-get update && sudo apt-get install -y iverilog
 
     - name: test
+      shell: bash
       run: |
         pwd
         rm runs/wokwi/results/final/verilog/gl/*.nl.v 
