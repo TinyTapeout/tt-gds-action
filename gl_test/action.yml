@@ -12,8 +12,6 @@ runs:
       with:
         name: GDS
 
-        cp runs/wokwi/results/final/gds/*.gds tinytapeout.gds
-
     # for debugging, show all the files
     - name: show files
       run: |
