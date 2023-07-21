@@ -1,0 +1,51 @@
+name: 'Tiny Tapeout Gate Level test'
+description: 'This action will copy the GL netlist from the GDS action and run your testbench on it'
+branding:
+  color: purple
+  icon: check
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Download GDS artifact
+      uses: actions/download-artifact@v3
+      with:
+        name: GDS
+
+        cp runs/wokwi/results/final/gds/*.gds tinytapeout.gds
+
+    # for debugging, show all the files
+    - name: show files
+      run: |
+        pwd
+        find .
+
+    # install oss fpga tools for iVerilog
+    - name: install oss-cad-suite
+      uses: YosysHQ/setup-oss-cad-suite@v2
+      with:
+          python-override: true
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+    - run: | 
+        yosys --version
+        iverilog -V
+        cocotb-config --libpython
+        cocotb-config --python-bin
+
+    - name: test
+      run: |
+        pwd
+        rm runs/wokwi/results/final/verilog/gl/*.nl.v 
+        cp runs/wokwi/results/final/verilog/gl/*.v src/gate_level_netlist.v
+        cd src
+        make clean
+        GATES=yes make
+        # make will return success even if the test fails, so check for failure in the results.xml
+        ! grep failure results.xml
+
+    - name: upload vcd
+      if: success() || failure()
+      uses: actions/upload-artifact@v3
+      with:
+          name: gatelevel-test-vcd
+          path: src/tb.vcd
