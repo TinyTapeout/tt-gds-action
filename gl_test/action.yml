@@ -22,10 +22,10 @@ runs:
     # Set Python up and install cocotb
     - name: setup python
       uses: actions/setup-python@v4
-      shell: bash
       with:
         python-version: '3.10'
         cache: 'pip'
+      shell: bash
     - run: pip install cocotb==1.8.0
 
     - name: install iverilog
