@@ -14,23 +14,25 @@ runs:
 
     # for debugging, show all the files
     - name: show files
+      shell: bash
       run: |
         pwd
         find .
 
-    # install oss fpga tools for iVerilog
-    - name: install oss-cad-suite
-      uses: YosysHQ/setup-oss-cad-suite@v2
+    # Set Python up and install cocotb
+    - name: setup python
+      uses: actions/setup-python@v4
       with:
-          python-override: true
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-    - run: | 
-        yosys --version
-        iverilog -V
-        cocotb-config --libpython
-        cocotb-config --python-bin
+        python-version: '3.10'
+        cache: 'pip'
+    - run: pip install cocotb==1.8.0
+
+    - name: install iverilog
+      shell: bash
+      run: sudo apt-get update && sudo apt-get install -y iverilog
 
     - name: test
+      shell: bash
       run: |
         pwd
         rm runs/wokwi/results/final/verilog/gl/*.nl.v 
