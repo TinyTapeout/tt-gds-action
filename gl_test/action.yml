@@ -52,11 +52,13 @@ runs:
       shell: bash
       run: |
         pwd
-        rm runs/wokwi/results/final/verilog/gl/*.nl.v 
+        rm -f runs/wokwi/results/final/verilog/gl/*.nl.v
         cp runs/wokwi/results/final/verilog/gl/*.v src/gate_level_netlist.v
         cd src
         make clean
+        rm -f results.xml
         GATES=yes make
+        test -f results.xml
         # make will return success even if the test fails, so check for failure in the results.xml
         ! grep failure results.xml
 
