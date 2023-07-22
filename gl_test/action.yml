@@ -41,7 +41,7 @@ runs:
     - name: Install cocotb (if required)
       if: ${{ hashFiles('test/requirements.txt') == '' }}
       shell: bash
-      run: pip install cocotb==1.8.0
+      run: pip install cocotb==1.8.0 pytest
 
     - name: Install Python packages
       if: ${{ hashFiles('test/requirements.txt') != '' }}
