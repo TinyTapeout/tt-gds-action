@@ -42,7 +42,7 @@ runs:
 
     - name: install cocotb
       shell: bash
-      run: pip install cocotb==1.8.0
+      run: pip install cocotb==1.8.0 pytest
 
     - name: install iverilog
       shell: bash
