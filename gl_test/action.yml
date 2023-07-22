@@ -59,7 +59,9 @@ runs:
         cp tt_submission/*.v "${{ inputs.test-dir }}/gate_level_netlist.v"
         cd "${{ inputs.test-dir }}"
         make clean
+        rm -f results.xml
         GATES=yes make
+        test -f results.xml
         # make will return success even if the test fails, so check for failure in the results.xml
         ! grep failure results.xml
 
