@@ -33,7 +33,7 @@ runs:
       shell: bash
       run: |
         python -m pip install numpy gdspy triangle pygltflib
-        cp runs/wokwi/results/final/gds/*.gds tinytapeout.gds
+        cp runs/wokwi/final/gds/*.gds tinytapeout.gds
         python3 gds2gltf.py tinytapeout.gds
         cp tinytapeout.gds.gltf gh-pages/tinytapeout.gds.gltf
 
