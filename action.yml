@@ -11,8 +11,8 @@ runs:
       shell: bash
       run: |
         cat << EOF >> $GITHUB_ENV
-        OPENLANE_TAG=2023.06.26
-        OPENLANE_IMAGE_NAME=efabless/openlane:3bc9d02d0b34ad032921553e512fbe4bebf1d833
+        OPENLANE_TAG=2023.09.07
+        OPENLANE_IMAGE_NAME=efabless/openlane:2023.09.07
         OPENLANE_ROOT=/home/runner/openlane
         PDK_ROOT=/home/runner/pdk
         PDK=sky130A
