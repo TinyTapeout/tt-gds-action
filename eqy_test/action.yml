@@ -32,7 +32,6 @@ runs:
       uses: YosysHQ/setup-oss-cad-suite@v2
       with:
           python-override: true
-          github-token: ${{ secrets.GITHUB_TOKEN }}
 
     # for debugging, show all the files
     - name: show files
