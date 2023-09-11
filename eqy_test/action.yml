@@ -38,8 +38,8 @@ runs:
       shell: bash
       run: |
         pwd
-        find .
         which eqy
+        find .
 
     - name: test
       shell: bash
