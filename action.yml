@@ -91,6 +91,9 @@ runs:
           runs/wokwi/results/final/*
           runs/wokwi/reports/metrics.csv
           runs/wokwi/reports/synthesis/1-synthesis*
+          runs/wokwi/OPENLANE_VERSION
+          runs/wokwi/PDK_SOURCES
+          runs/wokwi/config.tcl
           LICENSE
 
     # Create and store PNG...
