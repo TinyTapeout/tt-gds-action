@@ -82,7 +82,7 @@ runs:
           src/*
           runs/wokwi/*
 
-    - name: Publish GDS artifacts
+    - name: Publish GDS artifact
       uses: actions/upload-artifact@v3
       with:
         name: GDS
@@ -91,6 +91,7 @@ runs:
           runs/wokwi/results/final/*
           runs/wokwi/reports/metrics.csv
           runs/wokwi/reports/synthesis/1-synthesis*
+          LICENSE
 
     # Create and store PNG...
     - name: Render SVG from GDS
