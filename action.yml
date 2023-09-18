@@ -18,19 +18,19 @@ runs:
         PDK=sky130A
         EOF
 
-    # Install librsvg2-bin (for rsvg-convert) and pngquant (for heavy PNG compression)
+    # Install packages for 'Render PNG from GDS' step:
     - name: Install prerequisites
       uses: awalsh128/cache-apt-pkgs-action@latest
       with:
-        packages: librsvg2-bin pngquant
+        packages: librsvg2-bin pngquant # librsvg2-bin for rsvg-convert; pngquant for heavy PNG compression.
         version: tt05 # I think naming a version builds a reusable packages cache for that name.
 
     - name: Checkout tt-support-tools repo
       uses: actions/checkout@v3
       with:
-        repository: tinytapeout/tt-support-tools
+        repository: algofoogle/tt-support-tools #@@@ tinytapeout/tt-support-tools
         path: tt
-        ref: tt05
+        ref: gds-render-fix #@@@ tt05
 
     - name: Setup python
       uses: actions/setup-python@v4
@@ -97,20 +97,9 @@ runs:
           LICENSE
 
     # Create and store PNG...
-    - name: Render SVG from GDS
+    - name: Render PNG from GDS
       shell: bash
-      run: ./tt/tt_tool.py --create-svg
-
-    - name: Convert SVG to PNG
-      shell: bash
-      #NOTE: We avoid a cluttered labels mess by telling rsvg-convert to apply extra CSS that hides
-      # all text. Since -s expects a CSS *file*, we instead pass it "<(echo 'text{display:none;}')"
-      # which effectively creates a temporary/transient file that appears to contain the CSS we want:
-      run: rsvg-convert --unlimited gds_render.svg -s <(echo 'text{display:none;}') -o gds_render_png24.png --no-keep-image-data
-
-    - name: Shrink PNG
-      shell: bash
-      run: pngquant --quality 10-30 --speed 1 --nofs --strip --output gds_render.png gds_render_png24.png
+      run: './tt/tt_tool.py --create-png-preview 2>&1 || echo "WARNING: Failed to render PNG preview from GDS; error $?"'
 
     - name: Upload gds_render (png) artifact
       uses: actions/upload-artifact@v3
