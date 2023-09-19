@@ -99,7 +99,7 @@ runs:
     # Create and store PNG...
     - name: Render PNG from GDS
       shell: bash
-      run: './tt/tt_tool.py --create-png-preview 2>&1 || echo "WARNING: Failed to render PNG preview from GDS; error $?"'
+      run: './tt/tt_tool.py --create-png 2>&1 || echo "WARNING: Failed to render PNG preview from GDS; error $?"'
 
     - name: Upload gds_render (png) artifact
       uses: actions/upload-artifact@v3
