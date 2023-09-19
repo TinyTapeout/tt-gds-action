@@ -28,9 +28,9 @@ runs:
     - name: Checkout tt-support-tools repo
       uses: actions/checkout@v3
       with:
-        repository: algofoogle/tt-support-tools #@@@ tinytapeout/tt-support-tools
+        repository: tinytapeout/tt-support-tools
         path: tt
-        ref: gds-render-fix #@@@ tt05
+        ref: tt05
 
     - name: Setup python
       uses: actions/setup-python@v4
