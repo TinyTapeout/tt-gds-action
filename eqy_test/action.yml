@@ -50,4 +50,4 @@ runs:
         cd src
         cp $PDK_ROOT/sky130A/libs.ref/sky130_fd_sc_hd/verilog/primitives.v primitives.v
         cp $PDK_ROOT/sky130A/libs.ref/sky130_fd_sc_hd/verilog/sky130_fd_sc_hd.v sky130_fd_sc_hd.v
-        eqy -f rgb_mixer.eqy
+        eqy -f equivalence.eqy
