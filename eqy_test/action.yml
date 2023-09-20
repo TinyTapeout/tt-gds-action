@@ -1,0 +1,53 @@
+name: 'Tiny Tapeout Formal Equivalence test'
+description: 'This action will prove that the GL netlist is equivalent to the RTL using YosysHQ eqy tool'
+branding:
+  color: orange
+  icon: check
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Download GDS artifact
+      uses: actions/download-artifact@v3
+      with:
+        name: GDS
+
+    - name: Set up environment variables
+      shell: bash
+      run: |
+        cat << EOF >> $GITHUB_ENV
+        PDK_ROOT=/home/runner/pdk
+        PDK=sky130A
+        EOF
+
+    - name: Install Sky130 PDK
+      uses: TinyTapeout/volare-action@v1
+      with:
+        pdk_name: sky130
+        pdk_version: 12df12e2e74145e31c5a13de02f9a1e176b56e67
+        pdk_root: /home/runner/pdk
+
+    # install oss fpga tools
+    - name: install oss-cad-suite
+      uses: YosysHQ/setup-oss-cad-suite@v2
+      with:
+          python-override: true
+
+    # for debugging, show all the files
+    - name: show files
+      shell: bash
+      run: |
+        pwd
+        which eqy
+        find .
+
+    - name: test
+      shell: bash
+      run: |
+        pwd
+        cp ~/work/_temp/oss-cad-suite/examples/eqy/spm/formal_pdk_proc.py src/
+        cp runs/wokwi/results/final/verilog/gl/*.nl.v src/gate_level_netlist.v
+        cd src
+        cp $PDK_ROOT/sky130A/libs.ref/sky130_fd_sc_hd/verilog/primitives.v primitives.v
+        cp $PDK_ROOT/sky130A/libs.ref/sky130_fd_sc_hd/verilog/sky130_fd_sc_hd.v sky130_fd_sc_hd.v
+        eqy -f equivalence.eqy
