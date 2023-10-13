@@ -11,7 +11,7 @@ runs:
       shell: bash
       run: |
         cat << EOF >> $GITHUB_ENV
-        OPENLANE_TAG=2.0.0b13
+        OPENLANE_TAG=2.0.0b15
         OPENLANE_ROOT=$GITHUB_WORKSPACE/openlane
         PDK=sky130A
         EOF
@@ -61,9 +61,7 @@ runs:
     - name: Make GDS with OpenLane 2
       shell: bash
       run: |
-        cat src/config.tcl src/user_config.tcl > src/config.combined.tcl
-        nix-shell $OPENLANE_ROOT/shell.nix --run "python -m openlane --run-tag wokwi src/config.combined.tcl"
-        mv src/runs runs
+        nix-shell $OPENLANE_ROOT/shell.nix --run "python -m openlane --run-tag wokwi config.json"
         # The next command doesn't really harden, it only creates the required commit_id.json file:
         ./tt/tt_tool.py --harden --openlane2
 
