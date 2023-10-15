@@ -52,8 +52,7 @@ runs:
       shell: bash
       run: |
         pwd
-        rm runs/wokwi/results/final/verilog/gl/*.nl.v 
-        cp runs/wokwi/results/final/verilog/gl/*.v src/gate_level_netlist.v
+        cp runs/wokwi/final/pnl/*.pnl.v src/gate_level_netlist.v
         cd src
         make clean
         GATES=yes make
