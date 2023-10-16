@@ -11,6 +11,7 @@ Use the [tt05-submission-template](https://github.com/TinyTapeout/tt05-submissio
 To update the release tag of the action, run the following command (replace `tt05` with the current tiny tapeout version):
 
 ```bash
+git push
 git tag -fa tt05 -m "Update action to tt05"
 git push origin tt05 --force
 ```
