@@ -61,7 +61,12 @@ runs:
     - name: Make GDS with OpenLane 2
       shell: bash
       run: |
-        nix-shell $OPENLANE_ROOT/shell.nix --run "python -m openlane --run-tag wokwi config.json"
+        if [ -f build.py ]; then
+          nix-shell $OPENLANE_ROOT/shell.nix --run "python build.py"
+        else
+          nix-shell $OPENLANE_ROOT/shell.nix --run "python -m openlane --run-tag wokwi config.json"
+        fi
+
         # The next command doesn't really harden, it only creates the required commit_id.json file:
         ./tt/tt_tool.py --harden --openlane2
 
