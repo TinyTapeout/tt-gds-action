@@ -4,6 +4,11 @@ branding:
   color: purple
   icon: layers
 
+inputs:
+  openlane-tag:
+    description: 'OpenLane 2 version to use (git tag or commit hash - e.g. "2.0.0b15")'
+    default: '2.0.0b15'
+
 runs:
   using: 'composite'
   steps:
@@ -11,7 +16,7 @@ runs:
       shell: bash
       run: |
         cat << EOF >> $GITHUB_ENV
-        OPENLANE_TAG=2.0.0b15
+        OPENLANE_TAG=${{ inputs.openlane-tag }}
         OPENLANE_ROOT=$GITHUB_WORKSPACE/openlane
         PDK=sky130A
         EOF
