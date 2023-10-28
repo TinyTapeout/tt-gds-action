@@ -1,0 +1,66 @@
+name: 'Tiny Tapeout Custom GDS Action'
+description: 'This action builds prepares a custom GDS project for submitting to Tiny Tapeout'
+branding:
+  color: purple
+  icon: layers
+
+inputs:
+  top_module:
+    description: 'The name of the top module (e.g. tt_um_example)'
+    required: true
+  gds_path:
+    description: 'Path to the GDS file'
+    required: true
+  lef_path:
+    description: 'Path to the LEF file'
+    required: true
+  verilog_path:
+    description: 'Path to the verilog GL netlist (optional)'
+    default: ''
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Create commit_id.json
+      shell: bash
+      run: |
+        mkdir -p runs/wokwi/final
+        jq -n \
+          --arg app "custom_gds action" \
+          --arg repo "${{ github.server_url }}/${{ github.repository }}" \
+          --arg commit "${{ github.sha }}" \
+          --arg workflow_url "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" \
+          '{app: $app, repo: $repo, commit: $commit, workflow_url: $workflow_url}' \
+          > runs/wokwi/final/commit_id.json
+
+    - name: Copy GDS / LEF files to runs/wokwi/final
+      shell: bash
+      run: |
+        mkdir -p runs/wokwi/final/gds runs/wokwi/final/lef runs/wokwi/final/pnl
+        cp ${{ inputs.gds_path }} runs/wokwi/final/gds/${{ inputs.top_module }}.gds
+        cp ${{ inputs.lef_path }} runs/wokwi/final/lef/${{ inputs.top_module }}.lef
+        
+        touch runs/wokwi/final/pnl/${{ inputs.top_module }}.pnl.v
+        if [ -n "${{ inputs.verilog_path }}" ]; then
+          cp ${{ inputs.verilog_path }} runs/wokwi/final/pnl/${{ inputs.top_module }}.pnl.v
+        fi
+
+        # The following files are required by the Tiny Tapeout submission process:
+        mkdir -p runs/wokwi/final/spef/nom_ runs/wokwi/05-yosys-synthesis/reports
+        touch runs/wokwi/final/spef/nom_/${{ inputs.top_module }}.nom_.spef
+        jq -n '{}' > runs/wokwi/final/metrics.json
+        jq -n '{}' > runs/wokwi/05-yosys-synthesis/reports/stat.json
+
+    - name: Publish GDS artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: GDS
+        path: |
+          runs/wokwi/final/commit_id.json
+          runs/wokwi/final/metrics.json
+          runs/wokwi/05-yosys-synthesis/reports/stat.json
+          runs/wokwi/final/gds/${{ inputs.top_module }}.gds
+          runs/wokwi/final/lef/${{ inputs.top_module }}.lef
+          runs/wokwi/final/spef/nom_/${{ inputs.top_module }}.nom_.spef
+          runs/wokwi/final/pnl/${{ inputs.top_module }}.pnl.v
+          LICENSE
