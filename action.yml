@@ -8,6 +8,9 @@ inputs:
   openlane-tag:
     description: 'OpenLane 2 version to use (git tag or commit hash - e.g. "2.0.0b15")'
     default: '2.0.0b15'
+  skip-reports:
+    description: 'Skip generating reports (yosys warnings, routing, cell usage)'
+    default: false
 
 runs:
   using: 'composite'
@@ -80,15 +83,18 @@ runs:
       run: find runs/wokwi/
 
     - name: Yosys warnings
+      if: ${{ !inputs.skip-reports }}
       shell: bash
       run: ./tt/tt_tool.py --print-warnings --openlane2 >> $GITHUB_STEP_SUMMARY
 
     - name: Routing summary
+      if: ${{ !inputs.skip-reports }}
       shell: bash
       run: echo Routing summary is not yet available for OpenLane 2 >> $GITHUB_STEP_SUMMARY
       #run: ./tt/tt_tool.py --print-stats --openlane2 >> $GITHUB_STEP_SUMMARY
 
     - name: Cell usage summary
+      if: ${{ !inputs.skip-reports }}
       shell: bash
       run: ./tt/tt_tool.py --print-cell-category --openlane2 >> $GITHUB_STEP_SUMMARY
 
