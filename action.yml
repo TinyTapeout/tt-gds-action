@@ -61,6 +61,18 @@ runs:
       shell: bash
       run: find runs/wokwi/
 
+    - name: Linter output
+      if: always()
+      shell: bash
+      run: |
+        if [ -s runs/wokwi/logs/synthesis/linter.log ]; then
+          echo "# Linter output"  >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          # Print each line of the file preceeded by four spaces:
+          sed 's/^/    /' < runs/wokwi/logs/synthesis/linter.log >> $GITHUB_STEP_SUMMARY
+        fi
+
     - name: Yosys warnings
       shell: bash
       run: ./tt/tt_tool.py --print-warnings >> $GITHUB_STEP_SUMMARY
