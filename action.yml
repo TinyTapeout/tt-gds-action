@@ -10,6 +10,10 @@ runs:
     - name: Set up environment variables
       shell: bash
       run: |
+        # REMINDER: When updating the OpenLane version do not forget to change the PDKs used for
+        #           other actions in this repository gl_test/action.yml and eqy_test/action.yml
+        #           PDK_VERSION=1341f54f5ce0c4955326297f235e4ace1eb6d419
+        #           PDK_DATE=2023.08.27
         cat << EOF >> $GITHUB_ENV
         OPENLANE_TAG=2023.09.11
         OPENLANE_IMAGE_NAME=efabless/openlane:7e5a2e9fb274c0a100b4859a927adce7089455ff

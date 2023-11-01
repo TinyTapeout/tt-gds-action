@@ -29,7 +29,7 @@ runs:
       uses: TinyTapeout/volare-action@v1
       with:
         pdk_name: sky130
-        pdk_version: 12df12e2e74145e31c5a13de02f9a1e176b56e67
+        pdk_version: 1341f54f5ce0c4955326297f235e4ace1eb6d419
         pdk_root: /home/runner/pdk
 
     # for debugging, show all the files
