@@ -70,11 +70,42 @@ runs:
       shell: bash
       run: |
         if [ -s runs/wokwi/logs/synthesis/linter.log ]; then
-          echo "# Linter output"  >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
+          set +e
+          count_error=$(egrep -i "^%Error"   runs/wokwi/logs/synthesis/linter.log | wc -l)
+          count_warn=$( egrep -i "^%Warning" runs/wokwi/logs/synthesis/linter.log | wc -l)
+          count_other=$(egrep -i "^%"        runs/wokwi/logs/synthesis/linter.log | egrep -v "%(Warning|Error)" | wc -l)
+          set -e
 
+          open=""
+          summary=""
+          icon=":green_circle:"
+          if [ $count_other -gt 0 ]; then
+            summary="$count_other message(s)"
+            icon=":orange_circle:"
+          fi
+          if [ $count_warn -gt 0 ]; then
+            summary="$count_warn warning(s)"
+            icon=":orange_circle:"
+          fi
+          if [ $count_error -gt 0 ]; then
+            summary="$count_error error(s)"
+            icon=":red_circle:"
+            open="open"
+          fi
+          if [ -n "$summary" ]; then
+            summary="[$summary]"
+          fi
+
+          #echo "# Linter output ($summary)"  >> $GITHUB_STEP_SUMMARY
+          #echo "" >> $GITHUB_STEP_SUMMARY
+
+          echo "<details ${open}>" >> $GITHUB_STEP_SUMMARY
+          echo "<summary><h1>Linter output&nbsp;&nbsp;<h4>${summary} ${icon}</h4></h1></summary>" >> $GITHUB_STEP_SUMMARY
+          echo "<pre>" >> $GITHUB_STEP_SUMMARY
           # Print each line of the file preceeded by four spaces:
           sed 's/^/    /' < runs/wokwi/logs/synthesis/linter.log >> $GITHUB_STEP_SUMMARY
+          echo "</pre>" >> $GITHUB_STEP_SUMMARY
+          echo "</details>" >> $GITHUB_STEP_SUMMARY
         fi
 
     - name: Yosys warnings
