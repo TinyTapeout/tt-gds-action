@@ -30,7 +30,7 @@ runs:
         version: tt05 # I think naming a version builds a reusable packages cache for that name.
 
     - name: Checkout tt-support-tools repo
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         repository: tinytapeout/tt-support-tools
         path: tt
