@@ -7,7 +7,7 @@ inputs:
   test-dir:
     description: 'The directory with the Makefile for running the tests'
     required: true
-    default: 'src'
+    default: 'test'
 
 runs:
   using: 'composite'
