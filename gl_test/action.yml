@@ -15,7 +15,7 @@ runs:
     - name: Download GDS artifact
       uses: actions/download-artifact@v3
       with:
-        name: GDS
+        name: tt_submission
 
     - name: Set up environment variables
       shell: bash
@@ -57,8 +57,7 @@ runs:
       shell: bash
       run: |
         pwd
-        rm runs/wokwi/results/final/verilog/gl/*.nl.v 
-        cp runs/wokwi/results/final/verilog/gl/*.v "${{ inputs.test-dir }}/gate_level_netlist.v"
+        cp tt_submission/*.v "${{ inputs.test-dir }}/gate_level_netlist.v"
         cd "${{ inputs.test-dir }}"
         make clean
         GATES=yes make

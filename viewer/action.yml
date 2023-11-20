@@ -21,7 +21,7 @@ runs:
     - name: Download GDS artifact
       uses: actions/download-artifact@v3
       with:
-        name: GDS
+        name: tt_submission
 
     - name: Download gds_render (png) artifact
       uses: actions/download-artifact@v3
@@ -33,7 +33,7 @@ runs:
       shell: bash
       run: |
         python -m pip install numpy gdspy triangle pygltflib
-        cp runs/wokwi/results/final/gds/*.gds tinytapeout.gds
+        cp tt_submission/*.gds tinytapeout.gds
         python3 gds2gltf.py tinytapeout.gds
         cp tinytapeout.gds.gltf gh-pages/tinytapeout.gds.gltf
 
