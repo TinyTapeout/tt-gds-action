@@ -11,7 +11,8 @@ runs:
       shell: bash
       run: |
         # REMINDER: When updating the OpenLane version do not forget to change the PDKs used for
-        #           other actions in this repository gl_test/action.yml and eqy_test/action.yml
+        #           other actions in this repository precheck/action.yml, gl_test/action.yml,
+        #           and eqy_test/action.yml
         #           PDK_VERSION=dd7771c384ed36b91a25e9f8b314355fc26561be
         cat << EOF >> $GITHUB_ENV
         OPENLANE_TAG=2023.11.17

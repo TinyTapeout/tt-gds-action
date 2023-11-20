@@ -1,0 +1,81 @@
+name: 'Tiny Tapeout Precheck'
+description: 'This action runs DRC checks on the user projects prior to submission'
+branding:
+  color: purple
+  icon: eye
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Set up environment variables
+      shell: bash
+      run: |
+        cat << EOF >> $GITHUB_ENV
+        PDK_ROOT=/home/runner/pdk
+        PDK_VERSION=dd7771c384ed36b91a25e9f8b314355fc26561be
+        EOF
+
+    - name: Checkout tt-support-tools repo
+      uses: actions/checkout@v4
+      with:
+        repository: tinytapeout/tt-support-tools
+        path: tt
+        ref: tt06
+
+    - name: Download GDS artifact
+      uses: actions/download-artifact@v3
+      with:
+        name: tt_submission
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+        cache: 'pip'
+
+    - name: Install dependencies
+      shell: bash
+      working-directory: tt/precheck
+      run: pip install -r requirements.txt
+
+    - name: Install Sky130 PDK
+      uses: TinyTapeout/volare-action@v1
+      with:
+        pdk_name: sky130
+        pdk_version: ${{ env.PDK_VERSION }}
+        pdk_root: ${{ env.PDK_ROOT }}
+
+    - name: Install Nix
+      uses: rikhuijzer/cache-install@v1.1.2
+      with:
+        key: nix-${{ hashFiles('precheck/default.nix') }}
+        nix_file: 'tt/precheck/default.nix'
+
+    - name: Build Nix packages
+      shell: bash
+      working-directory: tt/precheck
+      run: nix-build
+
+    - name: Run precheck
+      shell: bash
+      working-directory: tt/precheck
+      run: nix-shell --run "python precheck.py --gds ${{ github.workspace }}/tt_submission/*.gds"
+    
+    - name: Test Summary
+      uses: test-summary/action@v2
+      with:
+        paths: "tt/precheck/reports/results.xml"
+      if: always()
+
+    - name: Capture test results
+      shell: bash
+      working-directory: tt/precheck
+      if: always()
+      run: cat reports/results.md >> $GITHUB_STEP_SUMMARY
+
+    - name: Upload reports
+      if: always()
+      uses: actions/upload-artifact@v3
+      with:
+        name: precheck-reports
+        path: tt/precheck/reports
