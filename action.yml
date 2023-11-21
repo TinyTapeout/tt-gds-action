@@ -96,9 +96,6 @@ runs:
             summary="[$summary]"
           fi
 
-          #echo "# Linter output ($summary)"  >> $GITHUB_STEP_SUMMARY
-          #echo "" >> $GITHUB_STEP_SUMMARY
-
           echo "<details ${open}>" >> $GITHUB_STEP_SUMMARY
           echo "<summary><h1>Linter output&nbsp;&nbsp;<h4>${summary} ${icon}</h4></h1></summary>" >> $GITHUB_STEP_SUMMARY
           echo "<pre>" >> $GITHUB_STEP_SUMMARY
