@@ -32,28 +32,21 @@ runs:
         pdk_version: dd7771c384ed36b91a25e9f8b314355fc26561be
         pdk_root: /home/runner/pdk
 
-    # for debugging, show all the files
-    - name: show files
-      shell: bash
-      run: |
-        pwd
-        find .
-
     # Set Python up and install cocotb
-    - name: setup python
+    - name: Setup python
       uses: actions/setup-python@v4
       with:
         python-version: '3.11'
 
-    - name: install cocotb
+    - name: Install cocotb
       shell: bash
       run: pip install cocotb==1.8.0
 
-    - name: install iverilog
+    - name: Install iverilog
       shell: bash
       run: sudo apt-get update && sudo apt-get install -y iverilog
 
-    - name: test
+    - name: Run tests
       shell: bash
       run: |
         pwd
@@ -64,9 +57,17 @@ runs:
         # make will return success even if the test fails, so check for failure in the results.xml
         ! grep failure results.xml
 
-    - name: upload vcd
-      if: success() || failure()
+    - name: Upload VCD
+      if: always()
       uses: actions/upload-artifact@v3
       with:
           name: gatelevel-test-vcd
-          path: ${{ inputs.test-dir }}/tb.vcd
+          path: |
+            ${{ inputs.test-dir }}/tb.vcd
+            ${{ inputs.test-dir }}/results.xml
+
+    - name: Test Summary
+      if: always()
+      uses: test-summary/action@v2
+      with:
+        paths: ${{ inputs.test-dir }}/results.xml
