@@ -12,7 +12,7 @@ runs:
       run: |
         cat << EOF >> $GITHUB_ENV
         PDK_ROOT=/home/runner/pdk
-        PDK_VERSION=dd7771c384ed36b91a25e9f8b314355fc26561be
+        PDK_VERSION=e0f692f46654d6c7c99fc70a0c94a080dab53571
         EOF
 
     - name: Checkout tt-support-tools repo
