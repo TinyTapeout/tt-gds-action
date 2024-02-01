@@ -37,7 +37,7 @@ runs:
         ref: tt06
 
     - name: Setup python
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
         python-version: '3.11'
         cache: 'pip' # caching pip dependencies
@@ -119,7 +119,7 @@ runs:
 
     - name: Publish build logs
       if: success() || failure()
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: GDS_logs
         path: |
@@ -140,7 +140,7 @@ runs:
         cp runs/wokwi/reports/synthesis/1-synthesis.AREA_0.stat.rpt tt_submission/stats/synthesis-stats.txt
 
     - name: Publish tt_submission artifact
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: tt_submission
         path: |
@@ -155,7 +155,7 @@ runs:
       run: './tt/tt_tool.py --create-png 2>&1 || echo "WARNING: Failed to render PNG preview from GDS; error $?"'
 
     - name: Upload gds_render (png) artifact
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: gds_render
         path: 'gds_render.png'

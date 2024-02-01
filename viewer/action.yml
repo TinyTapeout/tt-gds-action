@@ -13,18 +13,18 @@ runs:
         repository: mbalestrini/GDS2glTF
 
     - name: Setup python
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
         python-version: '3.11'
         cache: 'pip' # caching pip dependencies
 
     - name: Download GDS artifact
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: tt_submission
 
     - name: Download gds_render (png) artifact
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: gds_render
         path: gh-pages
@@ -58,13 +58,13 @@ runs:
         EOF
 
     - name: Upload artifact
-      uses: actions/upload-pages-artifact@v1
+      uses: actions/upload-pages-artifact@v3
       with:
         path: 'gh-pages'
 
     - name: Deploy to GitHub Pages
       id: deployment
-      uses: actions/deploy-pages@v2
+      uses: actions/deploy-pages@v4
 
     - name: Display preview in workflow summary
       shell: bash

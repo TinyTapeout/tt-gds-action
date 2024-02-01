@@ -23,12 +23,12 @@ runs:
         ref: tt06
 
     - name: Download GDS artifact
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: tt_submission
 
     - name: Set up Python
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
         python-version: '3.11'
         cache: 'pip'
@@ -46,7 +46,7 @@ runs:
         pdk_root: ${{ env.PDK_ROOT }}
 
     - name: Install Nix
-      uses: rikhuijzer/cache-install@v1.1.2
+      uses: rikhuijzer/cache-install@v.1.1.3
       with:
         key: nix-${{ hashFiles('precheck/default.nix') }}
         nix_file: 'tt/precheck/default.nix'
@@ -62,7 +62,7 @@ runs:
       run: nix-shell --run "python precheck.py --gds ${{ github.workspace }}/tt_submission/*.gds"
     
     - name: Test Summary
-      uses: test-summary/action@v2
+      uses: test-summary/action@v2.2
       with:
         paths: "tt/precheck/reports/results.xml"
       if: always()
@@ -75,7 +75,7 @@ runs:
 
     - name: Upload reports
       if: always()
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: precheck-reports
         path: tt/precheck/reports

@@ -15,7 +15,7 @@ runs:
         ref: tt06
 
     - name: Setup python
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
         python-version: '3.11'
         cache: 'pip' # caching pip dependencies
@@ -37,7 +37,7 @@ runs:
       run: ./tt/tt_tool.py --create-pdf
 
     - name: Archive PDF
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: PDF
         path: datasheet.pdf

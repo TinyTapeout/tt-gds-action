@@ -13,7 +13,7 @@ runs:
   using: 'composite'
   steps:
     - name: Download GDS artifact
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: tt_submission
 
@@ -34,7 +34,7 @@ runs:
 
     # Set Python up and install cocotb
     - name: Setup python
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
         python-version: '3.11'
 
@@ -59,7 +59,7 @@ runs:
 
     - name: Upload VCD
       if: always()
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
           name: gatelevel-test-vcd
           path: |
