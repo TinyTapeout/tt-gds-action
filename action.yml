@@ -1,8 +1,16 @@
-name: 'Tiny Tapeout GDS Action'
-description: 'This action builds a GDS file from your Tiny Tapeout project'
+name: 'Tiny Tapeout GDS Action (OpenLane 2)'
+description: 'This action builds a GDS file from your Tiny Tapeout project using OpenLane 2'
 branding:
   color: purple
   icon: layers
+
+inputs:
+  openlane-tag:
+    description: 'OpenLane 2 version to use (git tag or commit hash - e.g. "2.0.0b15")'
+    default: '2.0.0b16'
+  skip-reports:
+    description: 'Skip generating reports (yosys warnings, routing, cell usage)'
+    default: false
 
 runs:
   using: 'composite'
@@ -10,15 +18,9 @@ runs:
     - name: Set up environment variables
       shell: bash
       run: |
-        # REMINDER: When updating the OpenLane version do not forget to change the PDKs used for
-        #           other actions in this repository precheck/action.yml, gl_test/action.yml,
-        #           and eqy_test/action.yml
-        #           PDK_VERSION=e0f692f46654d6c7c99fc70a0c94a080dab53571
         cat << EOF >> $GITHUB_ENV
-        OPENLANE_TAG=2023.11.23
-        OPENLANE_IMAGE_NAME=efabless/openlane:2023.11.23
-        OPENLANE_ROOT=/home/runner/openlane
-        PDK_ROOT=/home/runner/pdk
+        OPENLANE_TAG=${{ inputs.openlane-tag }}
+        OPENLANE_ROOT=$GITHUB_WORKSPACE/openlane
         PDK=sky130A
         EOF
 
@@ -50,72 +52,51 @@ runs:
       shell: bash
       run: ./tt/tt_tool.py --create-user-config
 
-    - name: Install OpenLane
+    - name: Checkout OpenLane 2 repo
+      uses: actions/checkout@v4
+      with:
+        repository: efabless/openlane2
+        path: ${{ env.OPENLANE_ROOT }}
+        ref: ${{ env.OPENLANE_TAG }}
+
+    - uses: cachix/install-nix-action@v25
+
+    - uses: cachix/cachix-action@v14
+      with:
+        name: openlane
+        extraPullNames: openlane
+
+    - name: Make GDS with OpenLane 2
       shell: bash
       run: |
-        git clone --depth=1 --branch $OPENLANE_TAG https://github.com/The-OpenROAD-Project/OpenLane.git $OPENLANE_ROOT
-        cd $OPENLANE_ROOT
-        make
+        if [ -f build.py ]; then
+          nix-shell $OPENLANE_ROOT/shell.nix --run "python build.py"
+        else
+          nix-shell $OPENLANE_ROOT/shell.nix --run "python -m openlane --run-tag wokwi config.json"
+        fi
 
-    - name: Make GDS with OpenLane
-      shell: bash
-      run: ./tt/tt_tool.py --harden
+        # The next command doesn't really harden, it only creates the required commit_id.json file:
+        ./tt/tt_tool.py --harden --openlane2
 
     - name: Show build files (for debugging)
       shell: bash
       run: find runs/wokwi/
 
-    - name: Linter output
-      if: always()
-      shell: bash
-      run: |
-        if [ -s runs/wokwi/logs/synthesis/linter.log ]; then
-          set +e
-          count_error=$(egrep -i "^%Error"   runs/wokwi/logs/synthesis/linter.log | wc -l)
-          count_warn=$( egrep -i "^%Warning" runs/wokwi/logs/synthesis/linter.log | wc -l)
-          count_other=$(egrep -i "^%"        runs/wokwi/logs/synthesis/linter.log | egrep -v "%(Warning|Error)" | wc -l)
-          set -e
-
-          open=""
-          summary=""
-          icon=":green_circle:"
-          if [ $count_other -gt 0 ]; then
-            summary="$count_other message(s)"
-            icon=":orange_circle:"
-          fi
-          if [ $count_warn -gt 0 ]; then
-            summary="$count_warn warning(s)"
-            icon=":orange_circle:"
-          fi
-          if [ $count_error -gt 0 ]; then
-            summary="$count_error error(s)"
-            icon=":red_circle:"
-            open="open"
-          fi
-          if [ -n "$summary" ]; then
-            summary="[$summary]"
-          fi
-
-          echo "<details ${open}>" >> $GITHUB_STEP_SUMMARY
-          echo "<summary><h1>Linter output&nbsp;&nbsp;<h4>${summary} ${icon}</h4></h1></summary>" >> $GITHUB_STEP_SUMMARY
-          echo "<pre>" >> $GITHUB_STEP_SUMMARY
-          # Print each line of the file preceeded by four spaces:
-          sed 's/^/    /' < runs/wokwi/logs/synthesis/linter.log >> $GITHUB_STEP_SUMMARY
-          echo "</pre>" >> $GITHUB_STEP_SUMMARY
-          echo "</details>" >> $GITHUB_STEP_SUMMARY
-        fi
-
     - name: Yosys warnings
+      if: ${{ !inputs.skip-reports }}
       shell: bash
-      run: ./tt/tt_tool.py --print-warnings >> $GITHUB_STEP_SUMMARY
+      run: ./tt/tt_tool.py --print-warnings --openlane2 >> $GITHUB_STEP_SUMMARY
 
     - name: Routing summary
+      if: ${{ !inputs.skip-reports }}
       shell: bash
-      run: ./tt/tt_tool.py --print-stats >> $GITHUB_STEP_SUMMARY
+      run: echo Routing summary is not yet available for OpenLane 2 >> $GITHUB_STEP_SUMMARY
+      #run: ./tt/tt_tool.py --print-stats --openlane2 >> $GITHUB_STEP_SUMMARY
 
     - name: Cell usage summary
+      if: ${{ !inputs.skip-reports }}
       shell: bash
-      run: ./tt/tt_tool.py --print-cell-category >> $GITHUB_STEP_SUMMARY
+      run: ./tt/tt_tool.py --print-cell-category --openlane2 >> $GITHUB_STEP_SUMMARY
 
     - name: Publish build logs
       if: success() || failure()
@@ -131,13 +112,13 @@ runs:
       run: |
         mkdir -p tt_submission
         TOP_MODULE=$(./tt/tt_tool.py --print-top-module)
-        cp runs/wokwi/results/final/commit_id.json tt_submission/
-        cp runs/wokwi/results/final/{gds,lef,spef}/${TOP_MODULE}.* tt_submission/
-        cp runs/wokwi/results/final/verilog/gl/${TOP_MODULE}.v tt_submission/
-        cp runs/wokwi/{OPENLANE_VERSION,PDK_SOURCES,config.tcl} tt_submission/
+        cp runs/wokwi/final/commit_id.json tt_submission/
+        cp runs/wokwi/final/{gds,lef,spef/*}/${TOP_MODULE}.* tt_submission/
+        cp runs/wokwi/final/pnl/${TOP_MODULE}.pnl.v tt_submission/${TOP_MODULE}.v
+        cp runs/wokwi/{resolved.json,errors.log,warnings.log} tt_submission/
         mkdir -p tt_submission/stats
-        cp runs/wokwi/reports/metrics.csv tt_submission/stats/metrics.csv
-        cp runs/wokwi/reports/synthesis/1-synthesis.AREA_0.stat.rpt tt_submission/stats/synthesis-stats.txt
+        cp runs/wokwi/final/metrics.json tt_submission/stats/metrics.json
+        cp runs/wokwi/*-yosys-synthesis/reports/stat.json tt_submission/stats/synthesis-stats.json
 
     - name: Publish tt_submission artifact
       uses: actions/upload-artifact@v4
@@ -152,7 +133,7 @@ runs:
     # Create and store PNG...
     - name: Render PNG from GDS
       shell: bash
-      run: './tt/tt_tool.py --create-png 2>&1 || echo "WARNING: Failed to render PNG preview from GDS; error $?"'
+      run: './tt/tt_tool.py --create-png --openlane2 2>&1 || echo "WARNING: Failed to render PNG preview from GDS; error $?"'
 
     - name: Upload gds_render (png) artifact
       uses: actions/upload-artifact@v4
