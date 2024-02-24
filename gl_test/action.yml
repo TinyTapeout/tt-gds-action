@@ -61,7 +61,7 @@ runs:
       if: always()
       uses: actions/upload-artifact@v4
       with:
-          name: gatelevel-test-vcd
+          name: gatelevel_test_vcd
           path: |
             ${{ inputs.test-dir }}/tb.vcd
             ${{ inputs.test-dir }}/results.xml
