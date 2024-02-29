@@ -52,3 +52,39 @@ runs:
           LICENSE
           docs/*
           tt_submission/*
+
+    # Install packages for 'Render PNG from GDS' step:
+    - name: Install prerequisites
+      uses: awalsh128/cache-apt-pkgs-action@latest
+      with:
+        packages: librsvg2-bin pngquant # librsvg2-bin for rsvg-convert; pngquant for heavy PNG compression.
+        version: tt06
+
+    - name: Checkout tt-support-tools repo
+      uses: actions/checkout@v4
+      with:
+        repository: tinytapeout/tt-support-tools
+        path: tt
+        ref: tt06
+
+    - name: Setup python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+        cache: 'pip' # caching pip dependencies
+
+    - name: Install tt-support-tools dependencies
+      shell: bash
+      run: pip install -r tt/requirements.txt
+
+    - name: Render PNG from GDS
+      shell: bash
+      run: './tt/tt_tool.py --create-png 2>&1 || echo "WARNING: Failed to render PNG preview from GDS; error $?"'
+      env:
+        GDS_PATH: ${{ inputs.gds_path }}
+
+    - name: Upload gds_render (png) artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: gds_render
+        path: 'gds_render.png'
