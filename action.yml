@@ -6,8 +6,8 @@ branding:
 
 inputs:
   openlane-tag:
-    description: 'OpenLane 2 version to use (git tag or commit hash - e.g. "2.0.0b15")'
-    default: '2.0.0b16'
+    description: 'OpenLane 2 version to use (git tag or commit hash - e.g. "2.0.0b17")'
+    default: '2.0.0b17'
   skip-reports:
     description: 'Skip generating reports (yosys warnings, routing, cell usage)'
     default: false
@@ -115,7 +115,7 @@ runs:
         cp runs/wokwi/final/commit_id.json tt_submission/
         cp runs/wokwi/final/{gds,lef,spef/*}/${TOP_MODULE}.* tt_submission/
         cp runs/wokwi/final/pnl/${TOP_MODULE}.pnl.v tt_submission/${TOP_MODULE}.v
-        cp runs/wokwi/{resolved.json,errors.log,warnings.log} tt_submission/
+        cp runs/wokwi/{resolved.json,error.log,warning.log,flow.log} tt_submission/
         mkdir -p tt_submission/stats
         cp runs/wokwi/final/metrics.json tt_submission/stats/metrics.json
         cp runs/wokwi/*-yosys-synthesis/reports/stat.json tt_submission/stats/synthesis-stats.json
