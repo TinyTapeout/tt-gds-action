@@ -68,6 +68,7 @@ runs:
 
     - name: Check for failure
       if: failure()
+      shell: bash
       run: |
         echo "Failed to deploy to GitHub Pages, please follow the link to troubleshoot: https://tinytapeout.com/faq/#my-github-action-is-failing-on-the-pages-part"
 
