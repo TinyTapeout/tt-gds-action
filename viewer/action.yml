@@ -66,6 +66,18 @@ runs:
       id: deployment
       uses: actions/deploy-pages@v4
 
+    - name: Check for failure
+      if: failure()
+      run: |
+        echo "Failed to deploy to GitHub Pages, please follow the link to troubleshoot: https://tinytapeout.com/faq/#my-github-action-is-failing-on-the-pages-part"
+
+        cat << EOF >> $GITHUB_STEP_SUMMARY
+        # Error
+        Failed to deploy to GitHub Pages. [Click here for instructions how to fix](https://tinytapeout.com/faq/#my-github-action-is-failing-on-the-pages-part).
+        EOF
+
+        exit 1
+
     - name: Display preview in workflow summary
       shell: bash
       run: |
