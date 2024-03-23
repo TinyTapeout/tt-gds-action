@@ -29,7 +29,7 @@ runs:
       uses: TinyTapeout/volare-action@v2
       with:
         pdk_name: sky130
-        pdk_version: e0f692f46654d6c7c99fc70a0c94a080dab53571
+        pdk_version: cd1748bb197f9b7af62a54507de6624e30363943
         pdk_root: /home/runner/pdk
 
     # Set Python up and install cocotb
