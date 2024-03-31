@@ -46,7 +46,7 @@ runs:
         pdk_root: ${{ env.PDK_ROOT }}
 
     - name: Install Nix
-      uses: rikhuijzer/cache-install@v.1.1.3
+      uses: rikhuijzer/cache-install@v1.1.4
       with:
         key: nix-${{ hashFiles('precheck/default.nix') }}
         nix_file: 'tt/precheck/default.nix'
