@@ -13,10 +13,10 @@ runs:
         # REMINDER: When updating the OpenLane version do not forget to change the PDKs used for
         #           other actions in this repository precheck/action.yml, gl_test/action.yml,
         #           and eqy_test/action.yml
-        #           PDK_VERSION=e0f692f46654d6c7c99fc70a0c94a080dab53571
+        #           PDK_VERSION=cd1748bb197f9b7af62a54507de6624e30363943
         cat << EOF >> $GITHUB_ENV
-        OPENLANE_TAG=2023.11.23
-        OPENLANE_IMAGE_NAME=efabless/openlane:2023.11.23
+        OPENLANE_TAG=2024.04.02
+        OPENLANE_IMAGE_NAME=efabless/openlane:2024.04.02
         OPENLANE_ROOT=/home/runner/openlane
         PDK_ROOT=/home/runner/pdk
         PDK=sky130A
