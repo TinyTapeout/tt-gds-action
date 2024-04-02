@@ -38,9 +38,15 @@ runs:
       with:
         python-version: '3.11'
 
-    - name: Install cocotb
+    - name: Install cocotb (if required)
+      if: ${{ hashFiles('test/requirements.txt') == '' }}
       shell: bash
       run: pip install cocotb==1.8.0
+
+    - name: Install Python packages
+      if: ${{ hashFiles('test/requirements.txt') != '' }}
+      shell: bash
+      run: pip install -r test/requirements.txt
 
     - name: Install iverilog
       shell: bash
