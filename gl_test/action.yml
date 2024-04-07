@@ -57,6 +57,7 @@ runs:
       run: |
         cp tt_submission/*.v "${{ inputs.test-dir }}/gate_level_netlist.v"
         cd "${{ inputs.test-dir }}"
+        rm -f tb.vcd results.xml
         make clean
         GATES=yes make
 
