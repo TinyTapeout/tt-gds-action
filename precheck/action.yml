@@ -62,7 +62,7 @@ runs:
       run: nix-shell --run "python precheck.py --gds ${{ github.workspace }}/tt_submission/*.gds"
     
     - name: Test Summary
-      uses: test-summary/action@v2.2
+      uses: test-summary/action@v2.3
       with:
         paths: "tt/precheck/reports/results.xml"
       if: always()

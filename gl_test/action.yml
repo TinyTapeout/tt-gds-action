@@ -74,6 +74,6 @@ runs:
 
     - name: Test Summary
       if: always()
-      uses: test-summary/action@v2
+      uses: test-summary/action@v2.3
       with:
         paths: ${{ inputs.test-dir }}/results.xml
