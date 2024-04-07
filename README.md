@@ -4,7 +4,7 @@ GitHub action for hardening your Tiny Tapeout design into a manufacturable GDS f
 
 ## Usage
 
-Use the [tt05-submission-template](https://github.com/TinyTapeout/tt05-submission-template) as a starting point for your submission.
+Use the [tt06-verilog-template](https://github.com/TinyTapeout/tt06-verilog-template) as a starting point for your submission.
 
 ## Updating the action
 
