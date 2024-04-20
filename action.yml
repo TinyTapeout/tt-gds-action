@@ -27,14 +27,14 @@ runs:
       uses: awalsh128/cache-apt-pkgs-action@latest
       with:
         packages: librsvg2-bin pngquant # librsvg2-bin for rsvg-convert; pngquant for heavy PNG compression.
-        version: tt06 # I think naming a version builds a reusable packages cache for that name.
+        version: tt07 # I think naming a version builds a reusable packages cache for that name.
 
     - name: Checkout tt-support-tools repo
       uses: actions/checkout@v4
       with:
         repository: tinytapeout/tt-support-tools
         path: tt
-        ref: tt06
+        ref: tt07
 
     - name: Setup python
       uses: actions/setup-python@v5

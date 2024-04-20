@@ -20,7 +20,7 @@ runs:
       with:
         repository: tinytapeout/tt-support-tools
         path: tt
-        ref: tt06
+        ref: tt07
 
     - name: Download GDS artifact
       uses: actions/download-artifact@v4

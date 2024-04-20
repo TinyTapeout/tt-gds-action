@@ -12,7 +12,7 @@ runs:
       with:
         repository: tinytapeout/tt-support-tools
         path: tt
-        ref: tt06
+        ref: tt07
 
     - name: Setup python
       uses: actions/setup-python@v5
