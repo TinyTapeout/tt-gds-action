@@ -49,6 +49,7 @@ runs:
       with:
         name: tt_submission
         path: |
+          info.yaml
           LICENSE
           docs/*
           tt_submission/*
