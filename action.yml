@@ -15,8 +15,8 @@ runs:
         #           and eqy_test/action.yml
         #           PDK_VERSION=cd1748bb197f9b7af62a54507de6624e30363943
         cat << EOF >> $GITHUB_ENV
-        OPENLANE_TAG=2024.04.02
-        OPENLANE_IMAGE_NAME=efabless/openlane:2024.04.02
+        OPENLANE_TAG=2024.04.22
+        OPENLANE_IMAGE_NAME=efabless/openlane:2024.04.22
         OPENLANE_ROOT=/home/runner/openlane
         PDK_ROOT=/home/runner/pdk
         PDK=sky130A
