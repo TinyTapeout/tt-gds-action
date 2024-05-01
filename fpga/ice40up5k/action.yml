@@ -1,0 +1,52 @@
+name: 'Tiny Tapeout FPGA bitstream'
+description: 'This action will generate an ice40up5k FPGA bitstream from your Tiny Tapeout project'
+branding:
+  color: purple
+  icon: check
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Checkout tt-support-tools repo
+      uses: actions/checkout@v4
+      with:
+        repository: tinytapeout/tt-support-tools
+        path: tt
+        ref: tt07
+
+    - name: Setup python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+        cache: 'pip' # caching pip dependencies
+
+    - name: Install tt-support-tools dependencies
+      shell: bash
+      run: pip install -r tt/requirements.txt
+
+    - name: Install Python packages
+      if: ${{ hashFiles('test/requirements.txt') != '' }}
+      shell: bash
+      run: pip install -r test/requirements.txt
+
+    - name: install oss-cad-suite
+      uses: YosysHQ/setup-oss-cad-suite@v3
+      with:
+        python-override: true
+
+    - name: Create the bitstream
+      shell: bash
+      run: |
+        python tt/tt_tool.py --create-fpga-bitstream
+
+    - name: Upload the bitstream
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: fpga_bitstream
+        path: |
+          build/*
+          docs/*
+          src/*
+          info.yaml
+          LICENSE
