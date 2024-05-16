@@ -48,7 +48,7 @@ runs:
 
     - name: Fetch verilog and build config
       shell: bash
-      run: ./tt/tt_tool.py --create-user-config
+      run: ./tt/tt_tool.py --create-user-config --openlane2
 
     - name: Install OpenLane
       shell: bash
@@ -59,7 +59,7 @@ runs:
 
     - name: Make GDS with OpenLane
       shell: bash
-      run: ./tt/tt_tool.py --harden
+      run: ./tt/tt_tool.py --harden --openlane2
 
     - name: Show build files (for debugging)
       shell: bash
@@ -69,11 +69,11 @@ runs:
       if: always()
       shell: bash
       run: |
-        if [ -s runs/wokwi/logs/synthesis/linter.log ]; then
+        if [ -s runs/wokwi/*-verilator-lint/verilator-lint.log ]; then
           set +e
-          count_error=$(egrep -i "^%Error"   runs/wokwi/logs/synthesis/linter.log | wc -l)
-          count_warn=$( egrep -i "^%Warning" runs/wokwi/logs/synthesis/linter.log | wc -l)
-          count_other=$(egrep -i "^%"        runs/wokwi/logs/synthesis/linter.log | egrep -v "%(Warning|Error)" | wc -l)
+          count_error=$(egrep -i "^%Error"   runs/wokwi/*-verilator-lint/verilator-lint.log | wc -l)
+          count_warn=$( egrep -i "^%Warning" runs/wokwi/*-verilator-lint/verilator-lint.log | wc -l)
+          count_other=$(egrep -i "^%"        runs/wokwi/*-verilator-lint/verilator-lint.log | egrep -v "%(Warning|Error)" | wc -l)
           set -e
 
           open=""
@@ -100,22 +100,22 @@ runs:
           echo "<summary><h1>Linter output&nbsp;&nbsp;<h4>${summary} ${icon}</h4></h1></summary>" >> $GITHUB_STEP_SUMMARY
           echo "<pre>" >> $GITHUB_STEP_SUMMARY
           # Print each line of the file preceeded by four spaces:
-          sed 's/^/    /' < runs/wokwi/logs/synthesis/linter.log >> $GITHUB_STEP_SUMMARY
+          sed 's/^/    /' < runs/wokwi/*-verilator-lint/verilator-lint.log >> $GITHUB_STEP_SUMMARY
           echo "</pre>" >> $GITHUB_STEP_SUMMARY
           echo "</details>" >> $GITHUB_STEP_SUMMARY
         fi
 
     - name: Yosys warnings
       shell: bash
-      run: ./tt/tt_tool.py --print-warnings >> $GITHUB_STEP_SUMMARY
+      run: ./tt/tt_tool.py --print-warnings --openlane2 >> $GITHUB_STEP_SUMMARY
 
     - name: Routing summary
       shell: bash
-      run: ./tt/tt_tool.py --print-stats >> $GITHUB_STEP_SUMMARY
+      run: ./tt/tt_tool.py --print-stats --openlane2 >> $GITHUB_STEP_SUMMARY
 
     - name: Cell usage summary
       shell: bash
-      run: ./tt/tt_tool.py --print-cell-category >> $GITHUB_STEP_SUMMARY
+      run: ./tt/tt_tool.py --print-cell-category --openlane2 >> $GITHUB_STEP_SUMMARY
 
     - name: Publish build logs
       if: success() || failure()
@@ -130,14 +130,14 @@ runs:
       shell: bash
       run: |
         mkdir -p tt_submission
-        TOP_MODULE=$(./tt/tt_tool.py --print-top-module)
-        cp runs/wokwi/results/final/commit_id.json tt_submission/
-        cp runs/wokwi/results/final/{gds,lef,spef}/${TOP_MODULE}.* tt_submission/
-        cp runs/wokwi/results/final/verilog/gl/${TOP_MODULE}.v tt_submission/
-        cp runs/wokwi/{OPENLANE_VERSION,PDK_SOURCES,config.tcl} tt_submission/
+        TOP_MODULE=$(./tt/tt_tool.py --print-top-module --openlane2)
+        cp runs/wokwi/final/commit_id.json tt_submission/
+        cp runs/wokwi/final/{gds,lef,spef/*}/${TOP_MODULE}.* tt_submission/
+        cp runs/wokwi/final/pnl/${TOP_MODULE}.pnl.v tt_submission/${TOP_MODULE}.v
+        cp runs/wokwi/{OPENLANE_VERSION,PDK_SOURCES,resolved.json} tt_submission/
         mkdir -p tt_submission/stats
-        cp runs/wokwi/reports/metrics.csv tt_submission/stats/metrics.csv
-        cp runs/wokwi/reports/synthesis/1-synthesis.AREA_0.stat.rpt tt_submission/stats/synthesis-stats.txt
+        cp runs/wokwi/final/metrics.csv tt_submission/stats/metrics.csv
+        cp runs/wokwi/*-yosys-synthesis/reports/stat.log tt_submission/stats/synthesis-stats.txt
 
     - name: Publish tt_submission artifact
       uses: actions/upload-artifact@v4
@@ -153,7 +153,7 @@ runs:
     # Create and store PNG...
     - name: Render PNG from GDS
       shell: bash
-      run: './tt/tt_tool.py --create-png 2>&1 || echo "WARNING: Failed to render PNG preview from GDS; error $?"'
+      run: './tt/tt_tool.py --create-png --openlane2 2>&1 || echo "WARNING: Failed to render PNG preview from GDS; error $?"'
 
     - name: Upload gds_render (png) artifact
       uses: actions/upload-artifact@v4
