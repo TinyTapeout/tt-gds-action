@@ -5,6 +5,16 @@ branding:
   icon: layers
 
 inputs:
+  tools-repo:
+    description: 'Override tt-support-tools repository'
+    default: 'TinyTapeout/tt-support-tools'
+    required: false
+    type: string
+  tools-ref:
+    description: 'Override tt-support-tools branch/tag/commit'
+    default: 'tt07'
+    required: false
+    type: string
   top_module:
     description: 'The name of the top module (e.g. tt_um_example)'
     required: true
@@ -64,9 +74,9 @@ runs:
     - name: Checkout tt-support-tools repo
       uses: actions/checkout@v4
       with:
-        repository: tinytapeout/tt-support-tools
+        repository: "${{ inputs.tools-repo }}"
         path: tt
-        ref: tt07
+        ref: "${{ inputs.tools-ref }}"
 
     - name: Setup python
       uses: actions/setup-python@v5
