@@ -128,6 +128,7 @@ runs:
           src/*
           docs/*
           tt_submission/*
+          info.yaml
           LICENSE
 
     # Create and store PNG...
