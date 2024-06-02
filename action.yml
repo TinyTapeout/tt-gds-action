@@ -17,7 +17,7 @@ inputs:
     type: string
   flow:
     description: 'Flow used for hardening the chip'
-    default: 'openlane1'
+    default: 'openlane2'
     required: false
     type: choice
     options:
