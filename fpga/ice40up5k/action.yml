@@ -41,6 +41,11 @@ runs:
       shell: bash
       run: pip install -r test/requirements.txt
 
+    - name: Fetch verilog and build config
+      shell: bash
+      run: |
+        python tt/tt_tool.py --create-user-config $FLOW_ARG
+
     - name: install oss-cad-suite
       uses: YosysHQ/setup-oss-cad-suite@v3
       with:
