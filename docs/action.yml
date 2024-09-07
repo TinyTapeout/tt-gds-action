@@ -12,7 +12,7 @@ inputs:
     type: string
   tools-ref:
     description: 'Override tt-support-tools branch/tag/commit'
-    default: 'tt08'
+    default: 'tt09'
     required: false
     type: string
 
