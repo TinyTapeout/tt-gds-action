@@ -23,6 +23,7 @@ inputs:
     options:
       - openlane1
       - openlane2
+      - orfs
 
 runs:
   using: 'composite'
@@ -32,25 +33,40 @@ runs:
       env:
         FLOW: ${{ inputs.flow }}
       run: |
-        # REMINDER: When updating the OpenLane version do not forget to change the PDKs used for
-        #           other actions in this repository precheck/action.yml, gl_test/action.yml,
-        #           and eqy_test/action.yml
-        #           PDK_VERSION=cd1748bb197f9b7af62a54507de6624e30363943
-        cat << EOF >> $GITHUB_ENV
-        OPENLANE_TAG=2024.04.22
-        OPENLANE_IMAGE_NAME=efabless/openlane:2024.04.22
-        OPENLANE_ROOT=/home/runner/openlane
-        OPENLANE2_TAG=2.1.7
-        PDK_ROOT=/home/runner/pdk
-        PDK=sky130A
-        FLOW=$FLOW
-        EOF
         if [ "$FLOW" == "openlane1" ]
         then
-          echo "FLOW_ARG=" >> $GITHUB_ENV
+          # REMINDER: When updating the OpenLane version do not forget to change the PDKs used for
+          #           other actions in this repository precheck/action.yml, gl_test/action.yml,
+          #           and eqy_test/action.yml
+          #           PDK_VERSION=cd1748bb197f9b7af62a54507de6624e30363943
+          sed 's/^ *//' << __EOF >> $GITHUB_ENV
+            FLOW=openlane1
+            FLOW_ARG=
+            OPENLANE_TAG=2024.04.22
+            OPENLANE_IMAGE_NAME=efabless/openlane:2024.04.22
+            OPENLANE_ROOT=/home/runner/openlane
+            PDK_ROOT=/home/runner/pdk
+            PDK=sky130A
+        __EOF
         elif [ "$FLOW" == "openlane2" ]
         then
-          echo "FLOW_ARG=--openlane2" >> $GITHUB_ENV
+          sed 's/^ *//' << __EOF >> $GITHUB_ENV
+            FLOW=openlane2
+            FLOW_ARG=--openlane2
+            OPENLANE2_TAG=2.1.7
+            PDK_ROOT=/home/runner/pdk
+            PDK=sky130A
+        __EOF
+        elif [ "$FLOW" == "orfs" ]
+        then
+          sed 's/^ *//' << __EOF >> $GITHUB_ENV
+            FLOW=orfs
+            FLOW_ARG=--orfs
+            IHP_PDK_ROOT=${{ github.workspace }}/pdk
+            IHP_PDK_COMMIT=69c58d9ba56d8894c1499b2dd2689f5e22692704
+            ORFS_ROOT=${{ github.workspace }}/orfs
+            ORFS_COMMIT=ad1c669e5bfaf57b2b6e9c017c7255182d461190
+        __EOF
         else
           echo "Invalid flow '$FLOW'" >&2
           exit 1
@@ -85,6 +101,7 @@ runs:
       run: ./tt/tt_tool.py --create-user-config $FLOW_ARG
 
     - name: Install OpenLane
+      if: inputs.flow != 'orfs'
       shell: bash
       run: |
         if [ "$FLOW" == "openlane1" ]
@@ -97,13 +114,60 @@ runs:
           pip install openlane==$OPENLANE2_TAG
         fi
 
-    - name: Make GDS with OpenLane
+    - name: Install OpenROAD
+      if: inputs.flow == 'orfs'
+      shell: bash
+      run: |
+        wget https://github.com/Precision-Innovations/OpenROAD/releases/download/2024-09-05/openroad_2.0_amd64-ubuntu22.04-2024-09-05.deb
+        sudo apt-get install -y ./openroad_2.0_amd64-ubuntu22.04-2024-09-05.deb
+        echo "OPENROAD_EXE=$(command -v openroad)" >> $GITHUB_ENV
+
+    - name: Install KLayout
+      if: inputs.flow == 'orfs'
+      shell: bash
+      run: |
+        wget https://www.klayout.org/downloads/Ubuntu-22/klayout_0.29.7-1_amd64.deb
+        sudo apt-get install -y ./klayout_0.29.7-1_amd64.deb
+        pip install klayout==0.29.7
+
+    - name: 'Install yosys (oss-cad-suite)'
+      if: inputs.flow == 'orfs'
+      shell: bash
+      run: |
+        cd /opt
+        wget https://github.com/YosysHQ/oss-cad-suite-build/releases/download/2024-09-23/oss-cad-suite-linux-x64-20240923.tgz
+        tar zxf oss-cad-suite-linux-x64-20240923.tgz && rm oss-cad-suite-linux-x64-20240923.tgz
+        echo "YOSYS_EXE=/opt/oss-cad-suite/bin/yosys" >> $GITHUB_ENV
+
+    - name: Check out ORFS
+      if: inputs.flow == 'orfs'
+      uses: actions/checkout@v4
+      with:
+        repository: The-OpenROAD-Project/OpenROAD-flow-scripts
+        ref: ${{ env.ORFS_COMMIT }}
+        path: ${{ env.ORFS_ROOT }}
+
+    - name: Check out IHP PDK
+      if: inputs.flow == 'orfs'
+      uses: actions/checkout@v4
+      with:
+        repository: IHP-GmbH/IHP-Open-PDK
+        ref: ${{ env.IHP_PDK_COMMIT }}
+        path: ${{ env.IHP_PDK_ROOT }}
+
+    - name: Make GDS
       shell: bash
       run: ./tt/tt_tool.py --harden $FLOW_ARG
 
     - name: Show build files (for debugging)
       shell: bash
-      run: find runs/wokwi/
+      run: |
+        if [ "$FLOW" == "orfs" ]
+        then
+          find runs/ihp/
+        else
+          find runs/wokwi/
+        fi
 
     - name: Linter output
       if: always()
@@ -115,6 +179,9 @@ runs:
         elif [ "$FLOW" == "openlane2" ]
         then
           LINTER_LOG="runs/wokwi/*-verilator-lint/verilator-lint.log"
+        elif [ "$FLOW" == "orfs" ]
+        then
+          LINTER_LOG="runs/ihp/logs/ihp-sg13g2/tt-submission/base/1_1_yosys.log"
         fi
 
         LINTER_LOG=($LINTER_LOG)
@@ -179,16 +246,16 @@ runs:
         name: GDS_logs
         path: |
           src/*
-          runs/wokwi/*
+          runs/ihp/*
 
     - name: Prepare tt_submission artifact
       shell: bash
       run: |
         mkdir -p tt_submission
         mkdir -p tt_submission/stats
+        TOP_MODULE=$(./tt/tt_tool.py --print-top-module $FLOW_ARG)
         if [ "$FLOW" == "openlane1" ]
         then
-          TOP_MODULE=$(./tt/tt_tool.py --print-top-module)
           cp runs/wokwi/results/final/commit_id.json tt_submission/
           cp runs/wokwi/results/final/{gds,lef,spef}/${TOP_MODULE}.* tt_submission/
           cp runs/wokwi/results/final/verilog/gl/${TOP_MODULE}.v tt_submission/
@@ -197,13 +264,22 @@ runs:
           cp runs/wokwi/reports/synthesis/1-synthesis.AREA_0.stat.rpt tt_submission/stats/synthesis-stats.txt
         elif [ "$FLOW" == "openlane2" ]
         then
-          TOP_MODULE=$(./tt/tt_tool.py --print-top-module --openlane2)
           cp runs/wokwi/final/commit_id.json tt_submission/
           cp runs/wokwi/final/{gds,lef,spef/*}/${TOP_MODULE}.* tt_submission/
           cp runs/wokwi/final/pnl/${TOP_MODULE}.pnl.v tt_submission/${TOP_MODULE}.v
           cp runs/wokwi/{OPENLANE_VERSION,PDK_SOURCES,resolved.json} tt_submission/
           cp runs/wokwi/final/metrics.csv tt_submission/stats/metrics.csv
           cp runs/wokwi/*-yosys-synthesis/reports/stat.log tt_submission/stats/synthesis-stats.txt
+        elif [ "$FLOW" == "orfs" ]
+        then
+          cp runs/ihp/results/ihp-sg13g2/tt-submission/base/commit_id.json tt_submission/
+          cp runs/ihp/results/ihp-sg13g2/tt-submission/base/6_final.gds tt_submission/${TOP_MODULE}.gds
+          cp runs/ihp/results/ihp-sg13g2/tt-submission/base/${TOP_MODULE}.lef tt_submission/
+          cp runs/ihp/results/ihp-sg13g2/tt-submission/base/6_final.spef tt_submission/${TOP_MODULE}.spef
+          cp runs/ihp/results/ihp-sg13g2/tt-submission/base/6_final.v tt_submission/${TOP_MODULE}.v
+          cp runs/ihp/tool_versions.json tt_submission/
+          cp runs/ihp/results/ihp-sg13g2/tt-submission/base/metrics.csv tt_submission/stats/metrics.csv
+          cp runs/ihp/reports/ihp-sg13g2/tt-submission/base/synth_stat.txt tt_submission/stats/synthesis-stats.txt
         fi
 
     - name: Publish tt_submission artifact
