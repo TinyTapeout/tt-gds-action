@@ -34,15 +34,15 @@ runs:
     - shell: bash
       run: pip install -r tt/requirements.txt
 
-    - name: Check docs (info.yaml)
-      shell: bash
-      run: ./tt/tt_tool.py --check-docs
-
-    - name: Install Pandoc
+    - name: Install Pandoc & ghdl
       shell: bash
       run: |
         sudo apt-get update -y
-        sudo apt-get install -y pandoc texlive-xetex librsvg2-bin
+        sudo apt-get install -y pandoc texlive-xetex librsvg2-bin ghdl-llvm
+
+    - name: Check docs (info.yaml)
+      shell: bash
+      run: ./tt/tt_tool.py --check-docs
 
     - name: Create PDF
       shell: bash
