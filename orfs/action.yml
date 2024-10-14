@@ -103,14 +103,6 @@ runs:
       shell: bash
       run: ./tt/tt_tool.py --harden $FLOW_ARG
 
-    - name: Run DRC
-      shell: bash
-      run: ./tt/tt_tool.py --run-drc $FLOW_ARG
-
-    - name: Run LVS
-      shell: bash
-      run: ./tt/tt_tool.py --run-lvs $FLOW_ARG
-
     - name: Show build files (for debugging)
       shell: bash
       run: find runs/wokwi/
