@@ -95,9 +95,21 @@ runs:
         ref: ${{ env.IHP_PDK_COMMIT }}
         path: ${{ env.IHP_PDK_ROOT }}
 
+    - name: Patch LVS script in IHP PDK
+      shell: bash
+      run: patch -d $IHP_PDK_ROOT -p1 < tt/ihp/lvs.patch
+
     - name: Make GDS
       shell: bash
       run: ./tt/tt_tool.py --harden $FLOW_ARG
+
+    - name: Run DRC
+      shell: bash
+      run: ./tt/tt_tool.py --run-drc $FLOW_ARG
+
+    - name: Run LVS
+      shell: bash
+      run: ./tt/tt_tool.py --run-lvs $FLOW_ARG
 
     - name: Show build files (for debugging)
       shell: bash
