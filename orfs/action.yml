@@ -62,14 +62,15 @@ runs:
     - name: Install OpenROAD
       shell: bash
       run: |
-        wget https://github.com/Precision-Innovations/OpenROAD/releases/download/2024-09-05/openroad_2.0_amd64-ubuntu22.04-2024-09-05.deb
-        sudo apt-get install -y ./openroad_2.0_amd64-ubuntu22.04-2024-09-05.deb
+        wget https://github.com/htfab/OpenROAD/releases/download/ttihp0p2-69bd23c3/openroad_2.0_amd64-ubuntu24.04-69bd23c3.deb
+        sudo apt-get update -y
+        sudo apt-get install -y ./openroad_2.0_amd64-ubuntu24.04-69bd23c3.deb
         echo "OPENROAD_EXE=$(command -v openroad)" >> $GITHUB_ENV
 
     - name: Install KLayout
       shell: bash
       run: |
-        wget https://www.klayout.org/downloads/Ubuntu-22/klayout_0.29.7-1_amd64.deb
+        wget https://www.klayout.org/downloads/Ubuntu-24/klayout_0.29.7-1_amd64.deb
         sudo apt-get install -y ./klayout_0.29.7-1_amd64.deb
         pip install klayout==0.29.7
 
