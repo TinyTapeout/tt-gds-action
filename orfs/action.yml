@@ -26,7 +26,6 @@ runs:
           FLOW=orfs
           FLOW_ARG=--orfs
           IHP_PDK_ROOT=${{ github.workspace }}/pdk
-          IHP_PDK_COMMIT=69c58d9ba56d8894c1499b2dd2689f5e22692704
           ORFS_ROOT=${{ github.workspace }}/orfs
           ORFS_COMMIT=ad1c669e5bfaf57b2b6e9c017c7255182d461190
         EOF
@@ -92,13 +91,9 @@ runs:
     - name: Check out IHP PDK
       uses: actions/checkout@v4
       with:
-        repository: IHP-GmbH/IHP-Open-PDK
-        ref: ${{ env.IHP_PDK_COMMIT }}
+        repository: TinyTapeout/IHP-Open-PDK
+        ref: tt
         path: ${{ env.IHP_PDK_ROOT }}
-
-    - name: Patch LVS script in IHP PDK
-      shell: bash
-      run: patch -d $IHP_PDK_ROOT -p1 < tt/ihp/lvs.patch
 
     - name: Make GDS
       shell: bash
