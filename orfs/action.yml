@@ -95,6 +95,10 @@ runs:
         ref: tt
         path: ${{ env.IHP_PDK_ROOT }}
 
+    - name: Update ORFS platform files from IHP PDK
+      shell: bash
+      run: ./tt/ihp/pdk_update.sh
+
     - name: Make GDS
       shell: bash
       run: ./tt/tt_tool.py --harden $FLOW_ARG
