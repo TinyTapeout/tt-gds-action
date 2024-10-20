@@ -61,9 +61,9 @@ runs:
     - name: Install OpenROAD
       shell: bash
       run: |
-        wget https://github.com/htfab/OpenROAD/releases/download/ttihp0p2-69bd23c3/openroad_2.0_amd64-ubuntu24.04-69bd23c3.deb
+        wget https://github.com/htfab/OpenROAD/releases/download/ttihp0p2-40811f37/openroad_2.0_amd64-ubuntu24.04-40811f37.deb
         sudo apt-get update -y
-        sudo apt-get install -y ./openroad_2.0_amd64-ubuntu24.04-69bd23c3.deb
+        sudo apt-get install -y ./openroad_2.0_amd64-ubuntu24.04-40811f37.deb
         echo "OPENROAD_EXE=$(command -v openroad)" >> $GITHUB_ENV
 
     - name: Install KLayout
