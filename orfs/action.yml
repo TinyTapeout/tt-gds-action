@@ -27,7 +27,7 @@ runs:
           FLOW_ARG=--orfs
           IHP_PDK_ROOT=${{ github.workspace }}/pdk
           ORFS_ROOT=${{ github.workspace }}/orfs
-          ORFS_COMMIT=ad1c669e5bfaf57b2b6e9c017c7255182d461190
+          ORFS_COMMIT=62723bf5ed7c391d95918729c6313e04e7e0a1e0
         EOF
 
     # Install packages for 'Render PNG from GDS' step:
