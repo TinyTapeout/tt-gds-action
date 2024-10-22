@@ -27,7 +27,7 @@ runs:
           FLOW_ARG=--orfs
           IHP_PDK_ROOT=${{ github.workspace }}/pdk
           ORFS_ROOT=${{ github.workspace }}/orfs
-          ORFS_COMMIT=62723bf5ed7c391d95918729c6313e04e7e0a1e0
+          ORFS_COMMIT=980de246ed15fde469d98bd2d88084b9559ea7f2
         EOF
 
     # Install packages for 'Render PNG from GDS' step:
@@ -87,6 +87,10 @@ runs:
         repository: The-OpenROAD-Project/OpenROAD-flow-scripts
         ref: ${{ env.ORFS_COMMIT }}
         path: ${{ env.ORFS_ROOT }}
+
+    - name: Apply patches to ORFS
+      shell: bash
+      run: patch -p1 -d $ORFS_ROOT < ${{ github.action_path }}/orfs-pending.patch
 
     - name: Check out IHP PDK
       uses: actions/checkout@v4
