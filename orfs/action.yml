@@ -111,51 +111,51 @@ runs:
       shell: bash
       run: find runs/wokwi/
 
-    - name: Linter output
-      if: always()
-      shell: bash
-      run: |
-        LINTER_LOG="runs/wokwi/logs/ihp-sg13g2/tt-submission/base/1_1_yosys.log"
+    #- name: Linter output
+    #  if: always()
+    #  shell: bash
+    #  run: |
+    #    LINTER_LOG="runs/wokwi/logs/ihp-sg13g2/tt-submission/base/1_1_yosys.log"
 
-        echo "DEBUG LINTER_LOG *$LINTER_LOG*"
-        cat $LINTER_LOG
-        echo "END DEBUG"
+    #    echo "DEBUG LINTER_LOG *$LINTER_LOG*"
+    #    cat $LINTER_LOG
+    #    echo "END DEBUG"
 
-        if [ -s "$LINTER_LOG" ]; then
-          set +e
-          count_error=$(egrep -i "^%Error"   $LINTER_LOG | wc -l)
-          count_warn=$( egrep -i "^%Warning" $LINTER_LOG | wc -l)
-          count_other=$(egrep -i "^%"        $LINTER_LOG | egrep -v "%(Warning|Error)" | wc -l)
-          set -e
+    #    if [ -s "$LINTER_LOG" ]; then
+    #      set +e
+    #      count_error=$(egrep -i "^%Error"   $LINTER_LOG | wc -l)
+    #      count_warn=$( egrep -i "^%Warning" $LINTER_LOG | wc -l)
+    #      count_other=$(egrep -i "^%"        $LINTER_LOG | egrep -v "%(Warning|Error)" | wc -l)
+    #      set -e
 
-          open=""
-          summary=""
-          icon=":green_circle:"
-          if [ $count_other -gt 0 ]; then
-            summary="$count_other message(s)"
-            icon=":orange_circle:"
-          fi
-          if [ $count_warn -gt 0 ]; then
-            summary="$count_warn warning(s)"
-            icon=":orange_circle:"
-          fi
-          if [ $count_error -gt 0 ]; then
-            summary="$count_error error(s)"
-            icon=":red_circle:"
-            open="open"
-          fi
-          if [ -n "$summary" ]; then
-            summary="[$summary]"
-          fi
+    #      open=""
+    #      summary=""
+    #      icon=":green_circle:"
+    #      if [ $count_other -gt 0 ]; then
+    #        summary="$count_other message(s)"
+    #        icon=":orange_circle:"
+    #      fi
+    #      if [ $count_warn -gt 0 ]; then
+    #        summary="$count_warn warning(s)"
+    #        icon=":orange_circle:"
+    #      fi
+    #      if [ $count_error -gt 0 ]; then
+    #        summary="$count_error error(s)"
+    #        icon=":red_circle:"
+    #        open="open"
+    #      fi
+    #      if [ -n "$summary" ]; then
+    #        summary="[$summary]"
+    #      fi
 
-          echo "<details ${open}>" >> $GITHUB_STEP_SUMMARY
-          echo "<summary><h1>Linter output&nbsp;&nbsp;<h4>${summary} ${icon}</h4></h1></summary>" >> $GITHUB_STEP_SUMMARY
-          echo "<pre>" >> $GITHUB_STEP_SUMMARY
-          # Print each line of the file preceeded by four spaces:
-          sed 's/^/    /' < $LINTER_LOG >> $GITHUB_STEP_SUMMARY
-          echo "</pre>" >> $GITHUB_STEP_SUMMARY
-          echo "</details>" >> $GITHUB_STEP_SUMMARY
-        fi
+    #      echo "<details ${open}>" >> $GITHUB_STEP_SUMMARY
+    #      echo "<summary><h1>Linter output&nbsp;&nbsp;<h4>${summary} ${icon}</h4></h1></summary>" >> $GITHUB_STEP_SUMMARY
+    #      echo "<pre>" >> $GITHUB_STEP_SUMMARY
+    #      # Print each line of the file preceeded by four spaces:
+    #      sed 's/^/    /' < $LINTER_LOG >> $GITHUB_STEP_SUMMARY
+    #      echo "</pre>" >> $GITHUB_STEP_SUMMARY
+    #      echo "</details>" >> $GITHUB_STEP_SUMMARY
+    #    fi
 
     - name: Yosys warnings
       shell: bash
