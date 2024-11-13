@@ -4,16 +4,16 @@ GitHub action for hardening your Tiny Tapeout design into a manufacturable GDS f
 
 ## Usage
 
-Use the [tt09-verilog-template](https://github.com/TinyTapeout/tt09-verilog-template) as a starting point for your submission.
+Use the [tt10-verilog-template](https://github.com/TinyTapeout/tt10-verilog-template) as a starting point for your submission.
 
 ## Updating the action
 
-To update the release tag of the action, run the following command (replace `tt09` with the current tiny tapeout version):
+To update the release tag of the action, run the following command (replace `tt10` with the current tiny tapeout version):
 
 ```bash
 git push
-git tag -fa tt09 -m "Update action to tt09"
-git push origin tt09 --force
+git tag -fa tt10 -m "Update action to tt10"
+git push origin tt10 --force
 ```
 
 ## License
