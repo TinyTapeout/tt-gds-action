@@ -62,6 +62,7 @@ runs:
         if [ -n "${{ inputs.verilog_path }}" ]; then
           cp ${{ inputs.verilog_path }} tt_submission/${{ inputs.top_module }}.v
         fi
+        echo "GDS_EXT=$GDS_EXT" >> $GITHUB_ENV
 
     - name: Publish tt_submission artifact
       uses: actions/upload-artifact@v4
@@ -99,9 +100,17 @@ runs:
 
     - name: Render PNG from GDS
       shell: bash
-      run: './tt/tt_tool.py --create-png 2>&1 || echo "WARNING: Failed to render PNG preview from GDS; error $?"'
-      env:
-        GDS_PATH: ${{ inputs.gds_path }}
+      run: |
+        if [ $GDS_EXT == "gds" ]; then
+          export GDS_PATH=${{ inputs.gds_path }}
+        elif [ $GDS_EXT == "gds.br" ]; then
+          export GDS_PATH=$(mktemp --suffix=.gds)
+          brotli -d ${{ inputs.gds_path }} -o $GDS_PATH -f
+        else
+          echo "Layout file extension neither .gds or .gds.br" >&2
+          exit 1
+        fi
+        ./tt/tt_tool.py --create-png 2>&1 || echo "WARNING: Failed to render PNG preview from GDS; error $?"
 
     - name: Upload gds_render (png) artifact
       uses: actions/upload-artifact@v4
