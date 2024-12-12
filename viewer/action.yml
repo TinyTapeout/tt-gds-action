@@ -37,7 +37,14 @@ runs:
         if [ -f tt_submission/tool_versions.json ]; then
           git checkout ihp-sg13g2
         fi
-        cp tt_submission/*.gds tinytapeout.gds
+        if compgen -G "tt_submission/*.gds" > /dev/null; then
+          cp tt_submission/*.gds tinytapeout.gds
+        elif compgen -G "tt_submission/*.gds.br" > /dev/null; then
+          brotli -d tt_submission/*.gds.br -o tinytapeout.gds
+        else
+          echo "Layout extension neither .gds nor .gds.br" >&2
+          exit 1
+        fi
         python3 gds2gltf.py tinytapeout.gds
         cp tinytapeout.gds.gltf gh-pages/tinytapeout.gds.gltf
 
