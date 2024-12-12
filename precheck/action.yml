@@ -71,7 +71,7 @@ runs:
     - name: Run precheck
       shell: bash
       working-directory: tt/precheck
-      run: nix-shell --run "python precheck.py --gds ${{ github.workspace }}/tt_submission/*.gds"
+      run: nix-shell --run "python precheck.py --gds ${{ github.workspace }}/tt_submission/*.gds*"
     
     - name: Test Summary
       uses: test-summary/action@v2.3

@@ -46,7 +46,16 @@ runs:
     - name: Copy GDS / LEF files to tt_submission
       shell: bash
       run: |
-        cp ${{ inputs.gds_path }} tt_submission/${{ inputs.top_module }}.gds
+        GDS_PATH=${{ inputs.gds_path }}
+        GDS_EXT=${GDS_PATH#*.}
+        if [ $GDS_EXT == "gds" ]; then
+          cp ${{ inputs.gds_path }} tt_submission/${{ inputs.top_module }}.gds
+        elif [ $GDS_EXT == "gds.br" ]; then
+          cp ${{ inputs.gds_path }} tt_submission/${{ inputs.top_module }}.gds.br
+        else
+          echo "Layout file extension neither .gds or .gds.br" >&2
+          exit 1
+        fi
         cp ${{ inputs.lef_path }} tt_submission/${{ inputs.top_module }}.lef
         
         touch tt_submission/${{ inputs.top_module }}.v
