@@ -52,7 +52,7 @@ runs:
           sed 's/^ *//' << __EOF >> $GITHUB_ENV
             FLOW=openlane2
             FLOW_ARG=--openlane2
-            OPENLANE2_TAG=2.1.9
+            OPENLANE2_TAG=2.2.9
             PDK_ROOT=/home/runner/pdk
             PDK=sky130A
         __EOF
