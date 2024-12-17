@@ -21,7 +21,6 @@ inputs:
     required: false
     type: choice
     options:
-      - openlane1
       - openlane2
 
 runs:
@@ -29,37 +28,12 @@ runs:
   steps:
     - name: Set up environment variables
       shell: bash
-      env:
-        FLOW: ${{ inputs.flow }}
       run: |
-        if [ "$FLOW" == "openlane1" ]
-        then
-          # REMINDER: When updating the OpenLane version do not forget to change the PDKs used for
-          #           other actions in this repository precheck/action.yml, gl_test/action.yml,
-          #           and eqy_test/action.yml
-          #           PDK_VERSION=cd1748bb197f9b7af62a54507de6624e30363943
-          sed 's/^ *//' << __EOF >> $GITHUB_ENV
-            FLOW=openlane1
-            FLOW_ARG=
-            OPENLANE_TAG=2024.04.22
-            OPENLANE_IMAGE_NAME=efabless/openlane:2024.04.22
-            OPENLANE_ROOT=/home/runner/openlane
-            PDK_ROOT=/home/runner/pdk
-            PDK=sky130A
+        sed 's/^ *//' << __EOF >> $GITHUB_ENV
+          OPENLANE2_TAG=2.2.9
+          PDK_ROOT=/home/runner/pdk
+          PDK=sky130A
         __EOF
-        elif [ "$FLOW" == "openlane2" ]
-        then
-          sed 's/^ *//' << __EOF >> $GITHUB_ENV
-            FLOW=openlane2
-            FLOW_ARG=--openlane2
-            OPENLANE2_TAG=2.2.9
-            PDK_ROOT=/home/runner/pdk
-            PDK=sky130A
-        __EOF
-        else
-          echo "Invalid flow '$FLOW'" >&2
-          exit 1
-        fi
 
     # Install packages for 'Render PNG from GDS' step and ghdl to process VHDL files:
     - name: Install prerequisites
@@ -87,24 +61,15 @@ runs:
 
     - name: Fetch verilog and build config
       shell: bash
-      run: ./tt/tt_tool.py --create-user-config $FLOW_ARG
+      run: ./tt/tt_tool.py --create-user-config
 
     - name: Install OpenLane
       shell: bash
-      run: |
-        if [ "$FLOW" == "openlane1" ]
-        then
-          git clone --depth=1 --branch $OPENLANE_TAG https://github.com/The-OpenROAD-Project/OpenLane.git $OPENLANE_ROOT
-          cd $OPENLANE_ROOT
-          make
-        elif [ "$FLOW" == "openlane2" ]
-        then
-          pip install openlane==$OPENLANE2_TAG
-        fi
+      run: pip install openlane==$OPENLANE2_TAG
 
     - name: Make GDS with OpenLane
       shell: bash
-      run: ./tt/tt_tool.py --harden $FLOW_ARG
+      run: ./tt/tt_tool.py --harden
 
     - name: Show build files (for debugging)
       shell: bash
@@ -114,16 +79,8 @@ runs:
       if: always()
       shell: bash
       run: |
-        if [ "$FLOW" == "openlane1" ]
-        then
-          LINTER_LOG="runs/wokwi/logs/synthesis/linter.log"
-        elif [ "$FLOW" == "openlane2" ]
-        then
-          LINTER_LOG="runs/wokwi/*-verilator-lint/verilator-lint.log"
-        fi
-
-        LINTER_LOG=($LINTER_LOG)
-        LINTER_LOG="${LINTER_LOG[0]}"
+        LINTER_LOG=(runs/wokwi/*-verilator-lint/verilator-lint.log)
+        LINTER_LOG=${LINTER_LOG[0]}
 
         echo "DEBUG LINTER_LOG *$LINTER_LOG*"
         cat $LINTER_LOG
@@ -167,15 +124,15 @@ runs:
 
     - name: Yosys warnings
       shell: bash
-      run: ./tt/tt_tool.py --print-warnings $FLOW_ARG >> $GITHUB_STEP_SUMMARY
+      run: ./tt/tt_tool.py --print-warnings >> $GITHUB_STEP_SUMMARY
 
     - name: Routing summary
       shell: bash
-      run: ./tt/tt_tool.py --print-stats $FLOW_ARG >> $GITHUB_STEP_SUMMARY
+      run: ./tt/tt_tool.py --print-stats >> $GITHUB_STEP_SUMMARY
 
     - name: Cell usage summary
       shell: bash
-      run: ./tt/tt_tool.py --print-cell-category $FLOW_ARG >> $GITHUB_STEP_SUMMARY
+      run: ./tt/tt_tool.py --print-cell-category >> $GITHUB_STEP_SUMMARY
 
     - name: Publish build logs
       if: success() || failure()
@@ -191,24 +148,13 @@ runs:
       run: |
         mkdir -p tt_submission
         mkdir -p tt_submission/stats
-        TOP_MODULE=$(./tt/tt_tool.py --print-top-module $FLOW_ARG)
-        if [ "$FLOW" == "openlane1" ]
-        then
-          cp runs/wokwi/results/final/commit_id.json tt_submission/
-          cp runs/wokwi/results/final/{gds,lef,spef}/${TOP_MODULE}.* tt_submission/
-          cp runs/wokwi/results/final/verilog/gl/${TOP_MODULE}.v tt_submission/
-          cp runs/wokwi/{OPENLANE_VERSION,PDK_SOURCES,config.tcl} tt_submission/
-          cp runs/wokwi/reports/metrics.csv tt_submission/stats/metrics.csv
-          cp runs/wokwi/reports/synthesis/1-synthesis.AREA_0.stat.rpt tt_submission/stats/synthesis-stats.txt
-        elif [ "$FLOW" == "openlane2" ]
-        then
-          cp runs/wokwi/final/commit_id.json tt_submission/
-          cp runs/wokwi/final/{gds,lef,spef/*}/${TOP_MODULE}.* tt_submission/
-          cp runs/wokwi/final/pnl/${TOP_MODULE}.pnl.v tt_submission/${TOP_MODULE}.v
-          cp runs/wokwi/{OPENLANE_VERSION,PDK_SOURCES,resolved.json} tt_submission/
-          cp runs/wokwi/final/metrics.csv tt_submission/stats/metrics.csv
-          cp runs/wokwi/*-yosys-synthesis/reports/stat.rpt tt_submission/stats/synthesis-stats.txt
-        fi
+        TOP_MODULE=$(./tt/tt_tool.py --print-top-module)
+        cp runs/wokwi/final/commit_id.json tt_submission/
+        cp runs/wokwi/final/{gds,lef,spef/*}/${TOP_MODULE}.* tt_submission/
+        cp runs/wokwi/final/pnl/${TOP_MODULE}.pnl.v tt_submission/${TOP_MODULE}.v
+        cp runs/wokwi/{OPENLANE_VERSION,PDK_SOURCES,resolved.json} tt_submission/
+        cp runs/wokwi/final/metrics.csv tt_submission/stats/metrics.csv
+        cp runs/wokwi/*-yosys-synthesis/reports/stat.rpt tt_submission/stats/synthesis-stats.txt
 
     - name: Publish tt_submission artifact
       uses: actions/upload-artifact@v4
@@ -224,7 +170,7 @@ runs:
     # Create and store PNG...
     - name: Render PNG from GDS
       shell: bash
-      run: './tt/tt_tool.py --create-png $FLOW_ARG 2>&1 || echo "WARNING: Failed to render PNG preview from GDS; error $?"'
+      run: './tt/tt_tool.py --create-png 2>&1 || echo "WARNING: Failed to render PNG preview from GDS; error $?"'
 
     - name: Upload gds_render (png) artifact
       uses: actions/upload-artifact@v4
