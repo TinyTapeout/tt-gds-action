@@ -143,6 +143,13 @@ runs:
           src/*
           runs/wokwi/*
 
+    - name: Install KLayout
+      shell: bash
+      run: |
+        wget https://github.com/htfab/klayout/releases/download/v0.29.10/klayout_0.29.10-1_amd64.deb
+        sudo apt-get install -y ./klayout_0.29.10-1_amd64.deb
+        pip install klayout==0.29.10
+
     - name: Prepare tt_submission artifact
       shell: bash
       run: |
@@ -151,6 +158,7 @@ runs:
         TOP_MODULE=$(./tt/tt_tool.py --print-top-module)
         cp runs/wokwi/final/commit_id.json tt_submission/
         cp runs/wokwi/final/{gds,lef,spef/*}/${TOP_MODULE}.* tt_submission/
+        strm2oas tt_submission/${TOP_MODULE}.gds tt_submission/${TOP_MODULE}.oas
         cp runs/wokwi/final/pnl/${TOP_MODULE}.pnl.v tt_submission/${TOP_MODULE}.v
         cp runs/wokwi/{OPENLANE_VERSION,PDK_SOURCES,resolved.json} tt_submission/
         cp runs/wokwi/final/metrics.csv tt_submission/stats/metrics.csv
