@@ -43,10 +43,18 @@ runs:
           '{app: $app, repo: $repo, commit: $commit, workflow_url: $workflow_url}' \
           > tt_submission/commit_id.json
 
+    - name: Install KLayout
+      shell: bash
+      run: |
+        wget https://github.com/htfab/klayout/releases/download/v0.29.10/klayout_0.29.10-1_amd64.deb
+        sudo apt-get install -y ./klayout_0.29.10-1_amd64.deb
+        pip install klayout==0.29.10
+
     - name: Copy GDS / LEF files to tt_submission
       shell: bash
       run: |
         cp ${{ inputs.gds_path }} tt_submission/${{ inputs.top_module }}.gds
+        strm2oas ${{ inputs.gds_path }} tt_submission/${{ inputs.top_module }}.oas
         cp ${{ inputs.lef_path }} tt_submission/${{ inputs.top_module }}.lef
         
         touch tt_submission/${{ inputs.top_module }}.v
