@@ -32,7 +32,7 @@ runs:
 
     # Install packages for 'Render PNG from GDS' step:
     - name: Install prerequisites
-      uses: awalsh128/cache-apt-pkgs-action@latest
+      uses: awalsh128/cache-apt-pkgs-action@v1.4.3
       with:
         packages: librsvg2-bin pngquant # librsvg2-bin for rsvg-convert; pngquant for heavy PNG compression.
         version: tt10 # I think naming a version builds a reusable packages cache for that name.
