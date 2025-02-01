@@ -47,7 +47,7 @@ runs:
       shell: bash
       run: |
         wget https://github.com/htfab/klayout/releases/download/v0.29.11/klayout_0.29.11-1_amd64.deb
-        sudo apt-get install -y ./klayout_0.29.11-1_amd64.deb
+        sudo apt-get update && sudo apt-get install -y ./klayout_0.29.11-1_amd64.deb
         pip install klayout==0.29.11
 
     - name: Copy GDS / LEF files to tt_submission
