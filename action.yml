@@ -12,7 +12,7 @@ inputs:
     type: string
   tools-ref:
     description: 'Override tt-support-tools branch/tag/commit'
-    default: 'tt10'
+    default: 'ttihp25a'
     required: false
     type: string
   flow:
@@ -21,7 +21,14 @@ inputs:
     required: false
     type: choice
     options:
-      - openlane2
+      - 'openlane2'
+  pdk:
+    description: 'PDK used for hardening the chip'
+    required: true
+    type: choice
+    options:
+      - 'sky130'
+      - 'ihp'
 
 runs:
   using: 'composite'
@@ -29,11 +36,21 @@ runs:
     - name: Set up environment variables
       shell: bash
       run: |
-        sed 's/^ *//' << __EOF >> $GITHUB_ENV
-          OPENLANE2_TAG=2.2.9
-          PDK_ROOT=/home/runner/pdk
-          PDK=sky130A
+        if [ "${{ inputs.pdk }}" == "sky130" ]; then
+          sed 's/^ *//' << __EOF >> $GITHUB_ENV
+            OPENLANE2_TAG=2.2.9
+            PDK_ROOT=/home/runner/pdk
+            PDK=sky130A
+            TT_ARGS=
         __EOF
+        elif [ "${{ inputs.pdk }}" == "ihp" ]; then
+          sed 's/^ *//' << __EOF >> $GITHUB_ENV
+            OPENLANE_IMAGE_OVERRIDE=htms/openlane2:ihp-v3.0.0.dev17
+            PDK_ROOT=$GITHUB_WORKSPACE/pdk
+            PDK=ihp-sg13g2
+            TT_ARGS=--ihp
+        __EOF
+        fi
 
     # Install packages for 'Render PNG from GDS' step and ghdl to process VHDL files:
     - name: Install prerequisites
@@ -46,8 +63,16 @@ runs:
       uses: actions/checkout@v4
       with:
         repository: "${{ inputs.tools-repo }}"
-        path: tt
         ref: "${{ inputs.tools-ref }}"
+        path: tt
+
+    - name: Checkout IHP PDK repo
+      if: ${{ inputs.pdk == 'ihp' }}
+      uses: actions/checkout@v4
+      with:
+        repository: 'htfab/IHP-Open-PDK'
+        ref: 'openlane'
+        path: pdk
 
     - name: Setup python
       uses: actions/setup-python@v5
@@ -61,15 +86,23 @@ runs:
 
     - name: Fetch verilog and build config
       shell: bash
-      run: ./tt/tt_tool.py --create-user-config
+      run: ./tt/tt_tool.py --create-user-config $TT_ARGS
 
     - name: Install OpenLane
+      if: ${{ inputs.pdk == 'sky130' }}
       shell: bash
       run: pip install openlane==$OPENLANE2_TAG
 
+    - name: Install OpenLane (IHP branch)
+      if: ${{ inputs.pdk == 'ihp' }}
+      shell: bash
+      run: |
+        pip install https://github.com/htfab/libparse-python/releases/download/0.3.1-dev1/libparse-0.3.1-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
+        pip install https://github.com/htfab/openlane2/releases/download/ihp-v3.0.0.dev17/openlane-3.0.0.dev17-py3-none-any.whl
+
     - name: Make GDS with OpenLane
       shell: bash
-      run: ./tt/tt_tool.py --harden
+      run: ./tt/tt_tool.py --harden $TT_ARGS
 
     - name: Show build files (for debugging)
       shell: bash
@@ -124,15 +157,15 @@ runs:
 
     - name: Yosys warnings
       shell: bash
-      run: ./tt/tt_tool.py --print-warnings >> $GITHUB_STEP_SUMMARY
+      run: ./tt/tt_tool.py --print-warnings $TT_ARGS >> $GITHUB_STEP_SUMMARY
 
     - name: Routing summary
       shell: bash
-      run: ./tt/tt_tool.py --print-stats >> $GITHUB_STEP_SUMMARY
+      run: ./tt/tt_tool.py --print-stats $TT_ARGS >> $GITHUB_STEP_SUMMARY
 
     - name: Cell usage summary
       shell: bash
-      run: ./tt/tt_tool.py --print-cell-category >> $GITHUB_STEP_SUMMARY
+      run: ./tt/tt_tool.py --print-cell-category $TT_ARGS >> $GITHUB_STEP_SUMMARY
 
     - name: Publish build logs
       if: success() || failure()
@@ -155,11 +188,15 @@ runs:
       run: |
         mkdir -p tt_submission
         mkdir -p tt_submission/stats
-        TOP_MODULE=$(./tt/tt_tool.py --print-top-module)
+        TOP_MODULE=$(./tt/tt_tool.py --print-top-module $TT_ARGS)
         cp runs/wokwi/final/commit_id.json tt_submission/
         cp runs/wokwi/final/{gds,lef,spef/*}/${TOP_MODULE}.* tt_submission/
         strm2oas tt_submission/${TOP_MODULE}.gds tt_submission/${TOP_MODULE}.oas
-        cp runs/wokwi/final/pnl/${TOP_MODULE}.pnl.v tt_submission/${TOP_MODULE}.v
+        if [ "$PDK" == "sky130A" ]; then
+          cp runs/wokwi/final/pnl/${TOP_MODULE}.pnl.v tt_submission/${TOP_MODULE}.v
+        else        
+          cp runs/wokwi/final/nl/${TOP_MODULE}.nl.v tt_submission/${TOP_MODULE}.v
+        fi
         cp runs/wokwi/{OPENLANE_VERSION,PDK_SOURCES,resolved.json} tt_submission/
         cp runs/wokwi/final/metrics.csv tt_submission/stats/metrics.csv
         cp runs/wokwi/*-yosys-synthesis/reports/stat.rpt tt_submission/stats/synthesis-stats.txt
@@ -178,7 +215,7 @@ runs:
     # Create and store PNG...
     - name: Render PNG from GDS
       shell: bash
-      run: './tt/tt_tool.py --create-png 2>&1 || echo "WARNING: Failed to render PNG preview from GDS; error $?"'
+      run: './tt/tt_tool.py --create-png $TT_ARGS 2>&1 || echo "WARNING: Failed to render PNG preview from GDS; error $?"'
 
     - name: Upload gds_render (png) artifact
       uses: actions/upload-artifact@v4

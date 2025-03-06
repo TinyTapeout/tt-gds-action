@@ -8,6 +8,13 @@ inputs:
     description: 'The directory with the Makefile for running the tests'
     required: true
     default: 'test'
+  pdk:
+    description: 'PDK used for running GL tests'
+    required: true
+    type: choice
+    options:
+      - 'sky130'
+      - 'ihp'
 
 runs:
   using: 'composite'
@@ -20,17 +27,36 @@ runs:
     - name: Set up environment variables
       shell: bash
       run: |
-        cat << EOF >> $GITHUB_ENV
-        PDK_ROOT=/home/runner/pdk
-        PDK=sky130A
-        EOF
+        PDK_CHOICE="${{ inputs.pdk }}"
+        if [ "$PDK_CHOICE" == "sky130" ]; then
+          sed 's/^ *//' << __EOF >> $GITHUB_ENV
+            PDK_ROOT=/home/runner/pdk
+            PDK=sky130A
+            TT_ARGS=
+        __EOF
+        elif [ "$PDK_CHOICE" == "ihp" ]; then
+          sed 's/^ *//' << __EOF >> $GITHUB_ENV
+            PDK_ROOT=$GITHUB_WORKSPACE/pdk
+            PDK=ihp-sg13g2
+            TT_ARGS=--ihp
+        __EOF
+        fi
 
     - name: Install Sky130 PDK
+      if: ${{ inputs.pdk == 'sky130' }}
       uses: TinyTapeout/volare-action@v2
       with:
         pdk_name: sky130
         pdk_version: cd1748bb197f9b7af62a54507de6624e30363943
         pdk_root: /home/runner/pdk
+
+    - name: Checkout IHP PDK repo
+      if: ${{ inputs.pdk == 'ihp' }}
+      uses: actions/checkout@v4
+      with:
+        repository: 'htfab/IHP-Open-PDK'
+        ref: 'openlane'
+        path: pdk
 
     # Set Python up and install cocotb
     - name: Setup python
@@ -50,7 +76,10 @@ runs:
 
     - name: Install iverilog
       shell: bash
-      run: sudo apt-get update && sudo apt-get install -y iverilog
+      run: |
+        wget https://github.com/htfab/iverilog/releases/download/13.0-git-d8c3c51/iverilog_13.0-git-d8c3c51a-1_amd64.deb
+        sudo apt-get update -y
+        sudo apt-get install -y ./iverilog_13.0-git-d8c3c51a-1_amd64.deb
 
     - name: Run tests
       shell: bash
