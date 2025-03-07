@@ -70,7 +70,7 @@ runs:
       if: ${{ inputs.pdk == 'ihp' }}
       uses: actions/checkout@v4
       with:
-        repository: 'htfab/IHP-Open-PDK'
+        repository: 'TinyTapeout/IHP-Open-PDK'
         ref: 'openlane'
         path: pdk
 
@@ -97,8 +97,8 @@ runs:
       if: ${{ inputs.pdk == 'ihp' }}
       shell: bash
       run: |
-        pip install https://github.com/htfab/libparse-python/releases/download/0.3.1-dev1/libparse-0.3.1-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
-        pip install https://github.com/htfab/openlane2/releases/download/ihp-v3.0.0.dev17/openlane-3.0.0.dev17-py3-none-any.whl
+        pip install https://github.com/TinyTapeout/libparse-python/releases/download/0.3.1-dev1/libparse-0.3.1-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
+        pip install https://github.com/TinyTapeout/openlane2/releases/download/ihp-v3.0.0.dev17/openlane-3.0.0.dev17-py3-none-any.whl
 
     - name: Make GDS with OpenLane
       shell: bash
@@ -179,7 +179,7 @@ runs:
     - name: Install KLayout
       shell: bash
       run: |
-        wget https://github.com/htfab/klayout/releases/download/v0.29.11/klayout_0.29.11-1_amd64.deb
+        wget https://github.com/TinyTapeout/klayout/releases/download/v0.29.11/klayout_0.29.11-1_amd64.deb
         sudo apt-get update && sudo apt-get install -y ./klayout_0.29.11-1_amd64.deb
         pip install klayout==0.29.11
 

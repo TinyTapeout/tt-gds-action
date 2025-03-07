@@ -54,7 +54,7 @@ runs:
       if: ${{ inputs.pdk == 'ihp' }}
       uses: actions/checkout@v4
       with:
-        repository: 'htfab/IHP-Open-PDK'
+        repository: 'TinyTapeout/IHP-Open-PDK'
         ref: 'openlane'
         path: pdk
 
@@ -77,7 +77,7 @@ runs:
     - name: Install iverilog
       shell: bash
       run: |
-        wget https://github.com/htfab/iverilog/releases/download/13.0-git-d8c3c51/iverilog_13.0-git-d8c3c51a-1_amd64.deb
+        wget https://github.com/TinyTapeout/iverilog/releases/download/13.0-git-d8c3c51/iverilog_13.0-git-d8c3c51a-1_amd64.deb
         sudo apt-get update -y
         sudo apt-get install -y ./iverilog_13.0-git-d8c3c51a-1_amd64.deb
 
