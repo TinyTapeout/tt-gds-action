@@ -55,7 +55,7 @@ runs:
       uses: actions/checkout@v4
       with:
         repository: 'TinyTapeout/IHP-Open-PDK'
-        ref: 'openlane'
+        ref: 'tt2025'
         path: pdk
 
     # Set Python up and install cocotb
