@@ -7,18 +7,6 @@ branding:
 runs:
   using: 'composite'
   steps:
-    - name: Checkout GDS2glTF repo
-      uses: actions/checkout@v4
-      with:
-        repository: TinyTapeout/GDS2glTF
-        fetch-depth: 0
-
-    - name: Setup python
-      uses: actions/setup-python@v5
-      with:
-        python-version: '3.11'
-        cache: 'pip' # caching pip dependencies
-
     - name: Download GDS artifact
       uses: actions/download-artifact@v4
       with:
@@ -30,16 +18,10 @@ runs:
         name: gds_render
         path: gh-pages
 
-    - name: gds2gltf
+    - name: Copy GDS file
       shell: bash
       run: |
-        pip install -r requirements.txt
-        if [ -f tt_submission/tool_versions.json ]; then
-          git checkout ihp-sg13g2
-        fi
-        cp tt_submission/*.gds tinytapeout.gds
-        python3 gds2gltf.py tinytapeout.gds
-        cp tinytapeout.gds.gltf gh-pages/tinytapeout.gds.gltf
+        cp tt_submission/*.gds gh-pages/tinytapeout.gds
 
     - name: Generate HTML pages that redirects to viewer
       shell: bash
@@ -55,7 +37,7 @@ runs:
           </head>
           <body>
             <script>
-              location.href = "https://gds-viewer.tinytapeout.com/?model=" + encodeURIComponent(location.href + '/tinytapeout.gds.gltf');
+              location.href = "https://gds-viewer.tinytapeout.com/?process=SG13G2&model=" + encodeURIComponent(location.href + '/tinytapeout.gds');
             </script>
           </body>
           </html>
@@ -90,7 +72,7 @@ runs:
         PAGE_URL=$(echo "$PAGE_URL" | sed -e 's/\/$//')
         cat << EOF >> $GITHUB_STEP_SUMMARY
         # 3D Viewer
-        [open 3D viewer](https://gds-viewer.tinytapeout.com/?model=$PAGE_URL/tinytapeout.gds.gltf)
+        [open 3D viewer](https://gds-viewer.tinytapeout.com/?model=$PAGE_URL/tinytapeout.gds&process=SG13G2)
 
         # 2D Preview
         ![png]($PAGE_URL/gds_render.png)
