@@ -45,7 +45,7 @@ runs:
         __EOF
         elif [ "${{ inputs.pdk }}" == "ihp" ]; then
           sed 's/^ *//' << __EOF >> $GITHUB_ENV
-            OPENLANE_IMAGE_OVERRIDE=htms/openlane2:ihp-v3.0.0.dev17
+            OPENLANE_IMAGE_OVERRIDE=ghcr.io/tinytapeout/openlane2:ihp-v3.0.0.dev17
             PDK_ROOT=$GITHUB_WORKSPACE/pdk
             PDK=ihp-sg13g2
             TT_ARGS=--ihp
