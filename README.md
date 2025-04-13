@@ -8,12 +8,12 @@ Use the [ttihp-verilog-template](https://github.com/TinyTapeout/ttihp-verilog-te
 
 ## Updating the action
 
-To update the release tag of the action, run the following command (replace `ttihp25a` with the current tiny tapeout version):
+To update the release tag of the action, run the following command (replace `ttihp25b` with the current tiny tapeout version):
 
 ```bash
 git push
-git tag -fa ttihp25a -m "Update action to ttihp25a"
-git push origin ttihp25a --force
+git tag -fa ttihp25b -m "Update action to ttihp25b"
+git push origin ttihp25b --force
 ```
 
 ## License

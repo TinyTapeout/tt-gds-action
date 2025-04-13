@@ -12,7 +12,7 @@ inputs:
     type: string
   tools-ref:
     description: 'Override tt-support-tools branch/tag/commit'
-    default: 'ttihp25a'
+    default: 'ttihp25b'
     required: false
     type: string
   flow:
@@ -57,7 +57,7 @@ runs:
       uses: awalsh128/cache-apt-pkgs-action@v1.4.3
       with:
         packages: librsvg2-bin pngquant ghdl-llvm # librsvg2-bin for rsvg-convert; pngquant for heavy PNG compression.
-        version: tt10 # I think naming a version builds a reusable packages cache for that name.
+        version: ttihp25b # I think naming a version builds a reusable packages cache for that name.
 
     - name: Checkout tt-support-tools repo
       uses: actions/checkout@v4
