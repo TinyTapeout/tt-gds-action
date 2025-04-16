@@ -15,24 +15,43 @@ inputs:
     default: 'ttihp25b'
     required: false
     type: string
+  pdk:
+    description: 'PDK used for hardening the chip'
+    required: true
+    type: choice
+    options:
+      - 'sky130'
+      - 'ihp'
 
 runs:
   using: 'composite'
   steps:
-    - name: Set up environment variables
+    - name: Set up environment variables (Sky130)
       shell: bash
+      if: inputs.pdk == 'sky130'
       run: |
         cat << EOF >> $GITHUB_ENV
+        TECH=sky130
         PDK_ROOT=/home/runner/pdk
         PDK_VERSION=cd1748bb197f9b7af62a54507de6624e30363943
+        EOF
+
+    - name: Set up environment variables (IHP)
+      shell: bash
+      if: inputs.pdk == 'ihp'
+      run: |
+        cat << EOF >> $GITHUB_ENV
+        TECH=ihp-sg13g2
+        PDK_ROOT=$GITHUB_WORKSPACE/pdk
+        PDK_NAME=ihp-sg13g2
         EOF
 
     - name: Checkout tt-support-tools repo
       uses: actions/checkout@v4
       with:
-        repository: "${{ inputs.tools-repo }}"
+        repository: '${{ inputs.tools-repo }}'
         path: tt
-        ref: "${{ inputs.tools-ref }}"
+        ref: '${{ inputs.tools-ref }}'
 
     - name: Download GDS artifact
       uses: actions/download-artifact@v4
@@ -51,11 +70,20 @@ runs:
       run: pip install -r requirements.txt
 
     - name: Install Sky130 PDK
+      if: inputs.pdk == 'sky130'
       uses: TinyTapeout/volare-action@v2
       with:
         pdk_name: sky130
         pdk_version: ${{ env.PDK_VERSION }}
         pdk_root: ${{ env.PDK_ROOT }}
+
+    - name: Checkout IHP PDK repo
+      if: inputs.pdk == 'ihp'
+      uses: actions/checkout@v4
+      with:
+        repository: 'TinyTapeout/IHP-Open-PDK'
+        ref: 'tt2025'
+        path: pdk
 
     - name: Install Nix
       uses: rikhuijzer/cache-install@v1.1.4
@@ -71,12 +99,12 @@ runs:
     - name: Run precheck
       shell: bash
       working-directory: tt/precheck
-      run: nix-shell --run "python precheck.py --gds ${{ github.workspace }}/tt_submission/*.gds*"
-    
+      run: nix-shell --run "python precheck.py --gds ${{ github.workspace }}/tt_submission/*.gds* --tech ${{ env.TECH }}"
+
     - name: Test Summary
       uses: test-summary/action@v2.3
       with:
-        paths: "tt/precheck/reports/results.xml"
+        paths: 'tt/precheck/reports/results.xml'
       if: always()
 
     - name: Capture test results
