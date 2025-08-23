@@ -102,6 +102,7 @@ runs:
           path: |
             ${{ inputs.test-dir }}/tb.vcd
             ${{ inputs.test-dir }}/results.xml
+            ${{ inputs.test-dir }}/output/*
 
     - name: Test Summary
       if: always()
