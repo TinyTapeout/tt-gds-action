@@ -12,16 +12,9 @@ inputs:
     type: string
   tools-ref:
     description: 'Override tt-support-tools branch/tag/commit'
-    default: 'ttihp25b'
+    default: 'main'
     required: false
     type: string
-  flow:
-    description: 'Flow used for hardening the chip'
-    default: 'openlane2'
-    required: false
-    type: choice
-    options:
-      - 'openlane2'
   pdk:
     description: 'PDK used for hardening the chip'
     required: true
@@ -29,6 +22,11 @@ inputs:
     options:
       - 'sky130'
       - 'ihp'
+  librelane-version:
+    description: 'LibreLane version to install'
+    default: '2.4.2'
+    required: false
+    type: string
 
 runs:
   using: 'composite'
@@ -38,14 +36,12 @@ runs:
       run: |
         if [ "${{ inputs.pdk }}" == "sky130" ]; then
           sed 's/^ *//' << __EOF >> $GITHUB_ENV
-            OPENLANE2_TAG=2.2.9
             PDK_ROOT=/home/runner/pdk
             PDK=sky130A
             TT_ARGS=
         __EOF
         elif [ "${{ inputs.pdk }}" == "ihp" ]; then
           sed 's/^ *//' << __EOF >> $GITHUB_ENV
-            OPENLANE_IMAGE_OVERRIDE=ghcr.io/tinytapeout/openlane2:ihp-v3.0.0.dev23
             PDK_ROOT=$GITHUB_WORKSPACE/pdk
             PDK=ihp-sg13g2
             TT_ARGS=--ihp
@@ -88,19 +84,11 @@ runs:
       shell: bash
       run: ./tt/tt_tool.py --create-user-config $TT_ARGS
 
-    - name: Install OpenLane
-      if: ${{ inputs.pdk == 'sky130' }}
+    - name: Install LibreLane
       shell: bash
-      run: pip install openlane==$OPENLANE2_TAG
+      run: pip install librelane==${{ inputs.librelane-version }}
 
-    - name: Install OpenLane (IHP branch)
-      if: ${{ inputs.pdk == 'ihp' }}
-      shell: bash
-      run: |
-        pip install https://github.com/TinyTapeout/libparse-python/releases/download/0.3.1-dev1/libparse-0.3.1-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
-        pip install https://github.com/TinyTapeout/openlane2/releases/download/ihp-v3.0.0.dev23/openlane-3.0.0.dev23-py3-none-any.whl
-
-    - name: Make GDS with OpenLane
+    - name: Make GDS with LibreLane
       shell: bash
       run: ./tt/tt_tool.py --harden $TT_ARGS
 
@@ -197,7 +185,7 @@ runs:
         else        
           cp runs/wokwi/final/nl/${TOP_MODULE}.nl.v tt_submission/${TOP_MODULE}.v
         fi
-        cp runs/wokwi/{OPENLANE_VERSION,PDK_SOURCES,resolved.json} tt_submission/
+        cp runs/wokwi/{FLOW_VERSION,PDK_SOURCES,resolved.json} tt_submission/
         cp runs/wokwi/final/metrics.csv tt_submission/stats/metrics.csv
         cp runs/wokwi/*-yosys-synthesis/reports/stat.rpt tt_submission/stats/synthesis-stats.txt
 

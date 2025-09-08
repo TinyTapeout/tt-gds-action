@@ -4,16 +4,6 @@ branding:
   color: orange
   icon: check
 
-inputs:
-  flow:
-    description: 'Flow used for hardening the chip'
-    default: 'openlane1'
-    required: false
-    type: choice
-    options:
-      - openlane1
-      - openlane2
-
 runs:
   using: 'composite'
   steps:
@@ -56,15 +46,8 @@ runs:
       env:
         FLOW: ${{ inputs.flow }}
       run: |
-        pwd
         cp ~/work/_temp/oss-cad-suite/examples/eqy/spm/formal_pdk_proc.py src/
-        if [ "$FLOW" == "openlane1" ]
-        then
-          cp runs/wokwi/results/final/verilog/gl/*.nl.v src/gate_level_netlist.v
-        elif [ "$FLOW" == "openlane2" ]
-        then
-          cp runs/wokwi/final/nl/*.nl.v src/gate_level_netlist.v
-        fi
+        cp runs/wokwi/final/nl/*.nl.v src/gate_level_netlist.v
         cd src
         cp $PDK_ROOT/sky130A/libs.ref/sky130_fd_sc_hd/verilog/primitives.v primitives.v
         cp $PDK_ROOT/sky130A/libs.ref/sky130_fd_sc_hd/verilog/sky130_fd_sc_hd.v sky130_fd_sc_hd.v
