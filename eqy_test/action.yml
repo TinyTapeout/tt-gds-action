@@ -44,7 +44,6 @@ runs:
     - name: test
       shell: bash
       run: |
-        pwd
         cp ~/work/_temp/oss-cad-suite/examples/eqy/spm/formal_pdk_proc.py src/
         cp runs/wokwi/final/nl/*.nl.v src/gate_level_netlist.v
         cd src
