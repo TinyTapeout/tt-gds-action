@@ -12,7 +12,7 @@ inputs:
     type: string
   tools-ref:
     description: 'Override tt-support-tools branch/tag/commit'
-    default: 'ttihp25b'
+    default: 'main'
     required: false
     type: string
   top_module:
@@ -77,7 +77,7 @@ runs:
       uses: awalsh128/cache-apt-pkgs-action@v1.4.3
       with:
         packages: librsvg2-bin pngquant # librsvg2-bin for rsvg-convert; pngquant for heavy PNG compression.
-        version: ttihp25b
+        version: ttcache
 
     - name: Checkout tt-support-tools repo
       uses: actions/checkout@v4
