@@ -43,7 +43,9 @@ runs:
         USE_CIEL=1
 
         # PDK-specific overrides
-        if [ "$PDK" == "ihp-sg13g2" ]; then
+        if [ "$PDK" == "gf180mcuD" ] && [ -n "$PDK_VERSION" ]; then
+          PDK_VERSION="ff08c23db8359afce3f134c454e7930586d0641c"
+        elif [ "$PDK" == "ihp-sg13g2" ]; then
           PDK_ROOT=$GITHUB_WORKSPACE/pdk
           USE_CIEL=0
         elif [ "$PDK" == "sky130A" ] && [ -n "$PDK_VERSION" ]; then

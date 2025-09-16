@@ -20,8 +20,9 @@ inputs:
     required: true
     type: choice
     options:
-      - 'sky130A'
+      - 'gf180mcuD'
       - 'ihp-sg13g2'
+      - 'sky130A'
   librelane-version:
     description: 'LibreLane version to install'
     default: '2.4.2'
@@ -47,7 +48,9 @@ runs:
         fi
 
         # PDK-specific overrides
-        if [ "$PDK" == "ihp-sg13g2" ]; then
+        if [ "$PDK" == "gf180mcuD" ]; then
+          TT_ARGS="--gf"
+        elif [ "$PDK" == "ihp-sg13g2" ]; then
           PDK_ROOT=$GITHUB_WORKSPACE/pdk
           TT_ARGS="--ihp"
         fi
@@ -63,7 +66,7 @@ runs:
       uses: awalsh128/cache-apt-pkgs-action@v1.4.3
       with:
         packages: librsvg2-bin pngquant ghdl-llvm # librsvg2-bin for rsvg-convert; pngquant for heavy PNG compression.
-        version: ttihp25b # I think naming a version builds a reusable packages cache for that name.
+        version: ttcache
 
     - name: Checkout tt-support-tools repo
       uses: actions/checkout@v4
