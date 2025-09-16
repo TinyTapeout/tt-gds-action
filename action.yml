@@ -22,6 +22,7 @@ inputs:
     options:
       - 'sky130'
       - 'ihp'
+      - 'gf180mcu'
   librelane-version:
     description: 'LibreLane version to install'
     default: '2.4.2'
@@ -46,6 +47,12 @@ runs:
             PDK=ihp-sg13g2
             TT_ARGS=--ihp
         __EOF
+        elif [ "${{ inputs.pdk }}" == "gf180mcu" ]; then
+          sed 's/^ *//' << __EOF >> $GITHUB_ENV
+            PDK_ROOT=/home/runner/pdk
+            PDK=gf180mcuD
+            TT_ARGS=--gf
+        __EOF
         fi
 
     # Install packages for 'Render PNG from GDS' step and ghdl to process VHDL files:
@@ -53,7 +60,7 @@ runs:
       uses: awalsh128/cache-apt-pkgs-action@v1.4.3
       with:
         packages: librsvg2-bin pngquant ghdl-llvm # librsvg2-bin for rsvg-convert; pngquant for heavy PNG compression.
-        version: ttihp25b # I think naming a version builds a reusable packages cache for that name.
+        version: ttcache
 
     - name: Checkout tt-support-tools repo
       uses: actions/checkout@v4
@@ -152,6 +159,7 @@ runs:
       run: ./tt/tt_tool.py --print-stats $TT_ARGS >> $GITHUB_STEP_SUMMARY
 
     - name: Cell usage summary
+      if: ${{ inputs.pdk != 'gf180mcu' }}
       shell: bash
       run: ./tt/tt_tool.py --print-cell-category $TT_ARGS >> $GITHUB_STEP_SUMMARY
 
