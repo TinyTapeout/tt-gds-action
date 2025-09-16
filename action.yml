@@ -15,13 +15,6 @@ inputs:
     default: 'ttihp25b'
     required: false
     type: string
-  flow:
-    description: 'Flow used for hardening the chip'
-    default: 'openlane2'
-    required: false
-    type: choice
-    options:
-      - 'openlane2'
   pdk:
     description: 'PDK used for hardening the chip'
     required: true
