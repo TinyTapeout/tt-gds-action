@@ -164,30 +164,9 @@ runs:
           src/*
           runs/wokwi/*
 
-    - name: Install KLayout
-      shell: bash
-      run: |
-        wget https://github.com/TinyTapeout/klayout/releases/download/v0.29.12/klayout_0.29.12-1_amd64.deb
-        sudo apt-get update && sudo apt-get install -y ./klayout_0.29.12-1_amd64.deb
-        pip install klayout==0.29.12
-
     - name: Prepare tt_submission artifact
       shell: bash
-      run: |
-        mkdir -p tt_submission
-        mkdir -p tt_submission/stats
-        TOP_MODULE=$(./tt/tt_tool.py --print-top-module $TT_ARGS)
-        cp runs/wokwi/final/commit_id.json tt_submission/
-        cp runs/wokwi/final/{gds,lef,spef/*}/${TOP_MODULE}.* tt_submission/
-        strm2oas tt_submission/${TOP_MODULE}.gds tt_submission/${TOP_MODULE}.oas
-        if [ "$PDK" == "sky130A" ]; then
-          cp runs/wokwi/final/pnl/${TOP_MODULE}.pnl.v tt_submission/${TOP_MODULE}.v
-        else        
-          cp runs/wokwi/final/nl/${TOP_MODULE}.nl.v tt_submission/${TOP_MODULE}.v
-        fi
-        cp runs/wokwi/{FLOW_VERSION,PDK_SOURCES,resolved.json} tt_submission/
-        cp runs/wokwi/final/metrics.csv tt_submission/stats/metrics.csv
-        cp runs/wokwi/*-yosys-synthesis/reports/stat.rpt tt_submission/stats/synthesis-stats.txt
+      run: ./tt/tt_tool.py --create-tt-submission $TT_ARGS
 
     - name: Publish tt_submission artifact
       uses: actions/upload-artifact@v4
