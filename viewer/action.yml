@@ -37,12 +37,13 @@ runs:
         name: gds_render
         path: gh-pages
 
-    - name: Copy GDS file
+    - name: Copy OAS And GDSII
       shell: bash
       run: |
         cp tt_submission/*.gds gh-pages/tinytapeout.gds
+        cp tt_submission/*.oas gh-pages/tinytapeout.oas
 
-    - name: Generate HTML pages that redirects to viewer
+    - name: Generate an HTML page that redirects to viewer
       shell: bash
       run: |
         cat << EOF >> gh-pages/index.html
@@ -52,11 +53,11 @@ runs:
             <meta charset="UTF-8">
             <meta http-equiv="X-UA-Compatible" content="IE=edge">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>Redirecting to GDS Viewer...</title>
+            <title>Redirecting to 3D Viewer...</title>
           </head>
           <body>
             <script>
-              location.href = "https://gds-viewer.tinytapeout.com/?process=${{ env.PROCESS }}&model=" + encodeURIComponent(location.href + '/tinytapeout.gds');
+              location.href = "https://gds-viewer.tinytapeout.com/?process=${{ env.PROCESS }}&model=" + encodeURIComponent(location.href + '/tinytapeout.oas');
             </script>
           </body>
           </html>
@@ -91,7 +92,7 @@ runs:
         PAGE_URL=$(echo "$PAGE_URL" | sed -e 's/\/$//')
         cat << EOF >> $GITHUB_STEP_SUMMARY
         # 3D Viewer
-        [open 3D viewer](https://gds-viewer.tinytapeout.com/?model=$PAGE_URL/tinytapeout.gds&process=${{ env.PROCESS }})
+        [Open 3D viewer](https://gds-viewer.tinytapeout.com/?model=$PAGE_URL/tinytapeout.oas&process=${{ env.PROCESS }})
 
         # 2D Preview
         ![png]($PAGE_URL/gds_render.png)
