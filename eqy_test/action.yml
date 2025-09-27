@@ -21,7 +21,7 @@ runs:
         EOF
 
     - name: Install Sky130 PDK
-      uses: TinyTapeout/volare-action@v2
+      uses: TinyTapeout/ciel-action@v1
       with:
         pdk_name: sky130
         pdk_version: cd1748bb197f9b7af62a54507de6624e30363943
