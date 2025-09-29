@@ -5,16 +5,14 @@ branding:
   icon: layers
 
 inputs:
-  tools-repo:
-    description: 'Override tt-support-tools repository'
-    default: 'TinyTapeout/tt-support-tools'
-    required: false
-    type: string
-  tools-ref:
-    description: 'Override tt-support-tools branch/tag/commit'
-    default: 'main'
-    required: false
-    type: string
+  pdk:
+    description: 'PDK used for hardening the chip'
+    required: true
+    type: choice
+    options:
+      - 'sky130A'
+      - 'ihp-sg13g2'
+      - 'gf180mcuD'
   top_module:
     description: 'The name of the top module (e.g. tt_um_example)'
     required: true
@@ -27,11 +25,21 @@ inputs:
   verilog_path:
     description: 'Path to the verilog GL netlist (optional)'
     default: ''
+  tools-repo:
+    description: 'Override tt-support-tools repository'
+    default: 'TinyTapeout/tt-support-tools'
+    required: false
+    type: string
+  tools-ref:
+    description: 'Override tt-support-tools branch/tag/commit'
+    default: 'main'
+    required: false
+    type: string
 
 runs:
   using: 'composite'
   steps:
-    - name: Create commit_id.json
+    - name: Create commit_id.json and pdk.json
       shell: bash
       run: |
         mkdir -p tt_submission
@@ -42,6 +50,11 @@ runs:
           --arg workflow_url "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" \
           '{app: $app, repo: $repo, commit: $commit, workflow_url: $workflow_url}' \
           > tt_submission/commit_id.json
+        
+        jq -n \
+          --arg pdk "${{ inputs.pdk }}" \
+          '{PDK: $pdk}' \
+          > tt_submission/pdk.json
 
     - name: Install KLayout
       shell: bash
