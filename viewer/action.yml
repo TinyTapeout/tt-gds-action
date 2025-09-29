@@ -4,15 +4,6 @@ branding:
   color: purple
   icon: eye
 
-inputs:
-  pdk:
-    description: 'PDK used for rendering the 3D viewer'
-    default: 'ihp'
-    type: choice
-    options:
-      - 'sky130'
-      - 'ihp'
-
 runs:
   using: 'composite'
   steps:
@@ -21,15 +12,12 @@ runs:
       with:
         name: tt_submission
 
-    - name: Set up environment variables
+    - name: Read PDK information from submission
       shell: bash
+      working-directory: tt_submission
       run: |
-        PDK_CHOICE="${{ inputs.pdk }}"
-        if [ "$PDK_CHOICE" == "sky130" ]; then
-          echo "PROCESS=SKY130" >> $GITHUB_ENV
-        elif [ "$PDK_CHOICE" == "ihp" ]; then
-          echo "PROCESS=SG13G2" >> $GITHUB_ENV
-        fi
+        PDK=$(jq -r '.PDK' pdk.json)
+        echo "PDK=$PDK" >> $GITHUB_ENV
 
     - name: Download gds_render (png) artifact
       uses: actions/download-artifact@v4
@@ -57,7 +45,7 @@ runs:
           </head>
           <body>
             <script>
-              location.href = "https://gds-viewer.tinytapeout.com/?process=${{ env.PROCESS }}&model=" + encodeURIComponent(location.href + '/tinytapeout.oas');
+              location.href = "https://gds-viewer.tinytapeout.com/?pdk=${{ env.PDK }}&model=" + encodeURIComponent(location.href + '/tinytapeout.oas');
             </script>
           </body>
           </html>
@@ -92,7 +80,7 @@ runs:
         PAGE_URL=$(echo "$PAGE_URL" | sed -e 's/\/$//')
         cat << EOF >> $GITHUB_STEP_SUMMARY
         # 3D Viewer
-        [Open 3D viewer](https://gds-viewer.tinytapeout.com/?model=$PAGE_URL/tinytapeout.oas&process=${{ env.PROCESS }})
+        [Open 3D viewer](https://gds-viewer.tinytapeout.com/?model=$PAGE_URL/tinytapeout.oas&pdk=$PDK)
 
         # 2D Preview
         ![png]($PAGE_URL/gds_render.png)
