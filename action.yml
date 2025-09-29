@@ -20,8 +20,8 @@ inputs:
     required: true
     type: choice
     options:
-      - 'sky130'
-      - 'ihp'
+      - 'sky130A'
+      - 'ihp-sg13g2'
   librelane-version:
     description: 'LibreLane version to install'
     default: '2.4.2'
@@ -34,19 +34,29 @@ runs:
     - name: Set up environment variables
       shell: bash
       run: |
-        if [ "${{ inputs.pdk }}" == "sky130" ]; then
-          sed 's/^ *//' << __EOF >> $GITHUB_ENV
-            PDK_ROOT=/home/runner/pdk
-            PDK=sky130A
-            TT_ARGS=
-        __EOF
-        elif [ "${{ inputs.pdk }}" == "ihp" ]; then
-          sed 's/^ *//' << __EOF >> $GITHUB_ENV
-            PDK_ROOT=$GITHUB_WORKSPACE/pdk
-            PDK=ihp-sg13g2
-            TT_ARGS=--ihp
-        __EOF
+        # Defaults:
+        PDK="${{ inputs.pdk }}"
+        PDK_ROOT=/home/runner/pdk
+        TT_ARGS=""
+
+        # Backward compatibility with old 'pdk' values
+        if [ "$PDK" == "sky130" ]; then
+          PDK="sky130A"
+        elif [ "$PDK" == "ihp" ]; then
+          PDK="ihp-sg13g2"
         fi
+
+        # PDK-specific overrides
+        if [ "$PDK" == "ihp-sg13g2" ]; then
+          PDK_ROOT=$GITHUB_WORKSPACE/pdk
+          TT_ARGS="--ihp"
+        fi
+
+        cat << __EOF >> $GITHUB_ENV
+        PDK=$PDK
+        PDK_ROOT=$PDK_ROOT
+        TT_ARGS=$TT_ARGS
+        __EOF
 
     # Install packages for 'Render PNG from GDS' step and ghdl to process VHDL files:
     - name: Install prerequisites
@@ -63,7 +73,7 @@ runs:
         path: tt
 
     - name: Checkout IHP PDK repo
-      if: ${{ inputs.pdk == 'ihp' }}
+      if: ${{ env.PDK == 'ihp-sg13g2' }}
       uses: actions/checkout@v4
       with:
         repository: 'TinyTapeout/IHP-Open-PDK'
