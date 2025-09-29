@@ -8,13 +8,6 @@ inputs:
     description: 'The directory with the Makefile for running the tests'
     required: true
     default: 'test'
-  pdk:
-    description: 'PDK used for running GL tests'
-    required: true
-    type: choice
-    options:
-      - 'sky130'
-      - 'ihp'
 
 runs:
   using: 'composite'
@@ -25,33 +18,37 @@ runs:
         name: tt_submission
 
     - name: Set up environment variables
+      working-directory: tt_submission
       shell: bash
       run: |
-        PDK_CHOICE="${{ inputs.pdk }}"
-        if [ "$PDK_CHOICE" == "sky130" ]; then
-          sed 's/^ *//' << __EOF >> $GITHUB_ENV
-            PDK_ROOT=/home/runner/pdk
-            PDK=sky130A
-            TT_ARGS=
-        __EOF
-        elif [ "$PDK_CHOICE" == "ihp" ]; then
-          sed 's/^ *//' << __EOF >> $GITHUB_ENV
-            PDK_ROOT=$GITHUB_WORKSPACE/pdk
-            PDK=ihp-sg13g2
-            TT_ARGS=--ihp
-        __EOF
+        # Defaults
+        PDK=$(jq -r '.PDK' pdk.json)
+        PDK_ROOT=/home/runner/pdk
+        PDK_SOURCE=$(jq -r '.PDK_SOURCE' pdk.json)
+        PDK_VERSION=$(jq -r '.PDK_VERSION' pdk.json)
+
+        # PDK-specific overrides
+        if [ "$PDK" == "ihp-sg13g2" ]; then
+          PDK_ROOT=$GITHUB_WORKSPACE/pdk
         fi
 
-    - name: Install Sky130 PDK
-      if: ${{ inputs.pdk == 'sky130' }}
+        cat << __EOF >> $GITHUB_ENV
+        PDK=$PDK
+        PDK_ROOT=$PDK_ROOT
+        PDK_SOURCE=$PDK_SOURCE
+        PDK_VERSION=$PDK_VERSION
+        __EOF
+
+    - name: Install ${{ env.PDK }} PDK
+      if: ${{ env.PDK_SOURCE == 'open_pdks' }}
       uses: TinyTapeout/ciel-action@v1
       with:
-        pdk_name: sky130
-        pdk_version: cd1748bb197f9b7af62a54507de6624e30363943
-        pdk_root: /home/runner/pdk
+        pdk_name: ${{ env.PDK }}
+        pdk_version: ${{ env.PDK_VERSION }}
+        pdk_root: ${{ env.PDK_ROOT }}
 
     - name: Checkout IHP PDK repo
-      if: ${{ inputs.pdk == 'ihp' }}
+      if: ${{ env.PDK == 'ihp-sg13g2' }}
       uses: actions/checkout@v4
       with:
         repository: 'TinyTapeout/IHP-Open-PDK'
