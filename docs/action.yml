@@ -26,6 +26,15 @@ runs:
         path: tt
         ref: "${{ inputs.tools-ref }}"
 
+    - name: "Check for VHDL project, and install GHDL if needed"
+      shell: bash
+      run: |
+        if yq -r '.project.source_files[]' info.yaml | grep -E '\.vhdl$|\.vhd$'; then
+          echo "VHDL files found, installing GHDL."
+          sudo apt-get update -y
+          sudo apt-get install -y ghdl-llvm
+        fi
+
     - name: Setup python
       uses: actions/setup-python@v5
       with:
@@ -34,15 +43,15 @@ runs:
     - shell: bash
       run: pip install -r tt/requirements.txt
 
-    - name: Install Pandoc & ghdl
+    - name: Check docs (info.yaml)
+      shell: bash
+      run: ./tt/tt_tool.py --check-docs
+
+    - name: Install Pandoc
       shell: bash
       run: |
         sudo apt-get update -y
         sudo apt-get install -y pandoc texlive-xetex librsvg2-bin ghdl-llvm
-
-    - name: Check docs (info.yaml)
-      shell: bash
-      run: ./tt/tt_tool.py --check-docs
 
     - name: Create PDF
       shell: bash
