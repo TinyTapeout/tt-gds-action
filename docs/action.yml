@@ -43,9 +43,9 @@ runs:
     - shell: bash
       run: pip install -r tt/requirements.txt
 
-    - name: Check docs (info.yaml)
+    - name: Check info.yaml and docs/info.md
       shell: bash
-      run: ./tt/tt_tool.py --check-docs
+      run: ./tt/tt_tool.py --check-docs | tee -a ${GITHUB_STEP_SUMMARY}
 
     - name: Install Pandoc
       shell: bash
