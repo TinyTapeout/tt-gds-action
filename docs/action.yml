@@ -51,7 +51,12 @@ runs:
       shell: bash
       run: |
         sudo apt-get update -y
-        sudo apt-get install -y pandoc texlive-xetex librsvg2-bin ghdl-llvm
+        sudo apt-get install -y pandoc
+
+    - name: Install Typst
+      uses: typst-community/setup-typst@v4
+      with:
+        typst-version: '0.13.1'
 
     - name: Create PDF
       shell: bash
