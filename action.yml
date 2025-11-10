@@ -63,7 +63,7 @@ runs:
       uses: awalsh128/cache-apt-pkgs-action@v1.4.3
       with:
         packages: librsvg2-bin pngquant ghdl-llvm # librsvg2-bin for rsvg-convert; pngquant for heavy PNG compression.
-        version: ttihp25b # I think naming a version builds a reusable packages cache for that name.
+        version: tinytapeout_gds_action # I think naming a version builds a reusable packages cache for that name.
 
     - name: Checkout tt-support-tools repo
       uses: actions/checkout@v4
