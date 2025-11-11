@@ -22,9 +22,9 @@ runs:
     - name: Checkout tt-support-tools repo
       uses: actions/checkout@v4
       with:
-        repository: "${{ inputs.tools-repo }}"
+        repository: chipfoundry/tt-support-tools
         path: tt
-        ref: "${{ inputs.tools-ref }}"
+        ref: efabless
 
     - name: Setup python
       uses: actions/setup-python@v5
@@ -54,7 +54,14 @@ runs:
     - name: Create the bitstream
       shell: bash
       run: |
-        python tt/tt_tool.py --create-fpga-bitstream
+        python tt/tt_tool.py fpga --board efab_explain --create-fpga-bitstream
+
+    - name: Create the UF2
+      shell: bash
+      run: |
+        CLOCKRATE=`python tt/tt_tool.py info --clock_hz`
+        TITLE=`python tt/tt_tool.py info --title`
+        python tt/fpga/bitstream_to_uf2.py --target efabless --slot 1 --name "$TITLE" --autoclock $CLOCKRATE build/tt_fpga.bin build/tt_fpga.uf2
 
     - name: Upload the bitstream
       if: always()
