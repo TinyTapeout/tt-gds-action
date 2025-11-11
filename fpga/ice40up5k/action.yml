@@ -7,12 +7,12 @@ branding:
 inputs:
   tools-repo:
     description: 'Override tt-support-tools repository'
-    default: 'TinyTapeout/tt-support-tools'
+    default: 'chipfoundry/tt-support-tools'
     required: false
     type: string
   tools-ref:
     description: 'Override tt-support-tools branch/tag/commit'
-    default: 'main'
+    default: 'efabless'
     required: false
     type: string
 
@@ -22,9 +22,9 @@ runs:
     - name: Checkout tt-support-tools repo
       uses: actions/checkout@v4
       with:
-        repository: chipfoundry/tt-support-tools
+        repository: ${{ inputs.tools-repo }}
         path: tt
-        ref: efabless
+        ref: ${{ inputs.tools-ref }}
 
     - name: Setup python
       uses: actions/setup-python@v5
