@@ -54,7 +54,7 @@ runs:
     - name: Create the bitstream
       shell: bash
       run: |
-        python tt/tt_tool.py fpga --board efab_explain --create-fpga-bitstream
+        python tt/tt_tool.py fpga --board efab_explain --create-bitstream
 
     - name: Create the UF2
       shell: bash
