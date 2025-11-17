@@ -83,7 +83,7 @@ runs:
       run: |
         cp tt_submission/*.v "${{ inputs.test-dir }}/gate_level_netlist.v"
         cd "${{ inputs.test-dir }}"
-        rm -f tb.vcd results.xml
+        rm -f tb.vcd tb.fst results.xml
         make clean
         GATES=yes make
 
@@ -91,13 +91,14 @@ runs:
         test -f results.xml
         ! grep failure results.xml
 
-    - name: Upload VCD
+    - name: Upload Waveform and Test Results
       if: always()
       uses: actions/upload-artifact@v4
       with:
-          name: gatelevel_test_vcd
+          name: gatelevel_test_results
           path: |
             ${{ inputs.test-dir }}/tb.vcd
+            ${{ inputs.test-dir }}/tb.fst
             ${{ inputs.test-dir }}/results.xml
             ${{ inputs.test-dir }}/output/*
 
