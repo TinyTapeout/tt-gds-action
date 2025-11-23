@@ -51,13 +51,11 @@ runs:
         if [ "$PDK" == "gf180mcuD" ]; then
           TT_ARGS="--gf"
         elif [ "$PDK" == "ihp-sg13g2" ]; then
-          PDK_ROOT=$GITHUB_WORKSPACE/pdk
           TT_ARGS="--ihp"
         fi
 
         cat << __EOF >> $GITHUB_ENV
         PDK=$PDK
-        PDK_ROOT=$PDK_ROOT
         TT_ARGS=$TT_ARGS
         __EOF
 
@@ -74,14 +72,6 @@ runs:
         repository: "${{ inputs.tools-repo }}"
         ref: "${{ inputs.tools-ref }}"
         path: tt
-
-    - name: Checkout IHP PDK repo
-      if: ${{ env.PDK == 'ihp-sg13g2' }}
-      uses: actions/checkout@v4
-      with:
-        repository: 'TinyTapeout/IHP-Open-PDK'
-        ref: 'tt2025'
-        path: pdk
 
     - name: Setup python
       uses: actions/setup-python@v5

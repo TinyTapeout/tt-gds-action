@@ -27,11 +27,6 @@ runs:
         PDK_SOURCE=$(jq -r '.PDK_SOURCE' pdk.json)
         PDK_VERSION=$(jq -r '.PDK_VERSION' pdk.json)
 
-        # PDK-specific overrides
-        if [ "$PDK" == "ihp-sg13g2" ]; then
-          PDK_ROOT=$GITHUB_WORKSPACE/pdk
-        fi
-
         cat << __EOF >> $GITHUB_ENV
         PDK=$PDK
         PDK_ROOT=$PDK_ROOT
@@ -40,20 +35,11 @@ runs:
         __EOF
 
     - name: Install ${{ env.PDK }} PDK
-      if: ${{ env.PDK_SOURCE == 'open_pdks' }}
       uses: TinyTapeout/ciel-action@v1
       with:
         pdk_name: ${{ env.PDK }}
         pdk_version: ${{ env.PDK_VERSION }}
         pdk_root: ${{ env.PDK_ROOT }}
-
-    - name: Checkout IHP PDK repo
-      if: ${{ env.PDK == 'ihp-sg13g2' }}
-      uses: actions/checkout@v4
-      with:
-        repository: 'TinyTapeout/IHP-Open-PDK'
-        ref: 'tt2025'
-        path: pdk
 
     # Set Python up and install cocotb
     - name: Setup python

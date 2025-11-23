@@ -40,14 +40,12 @@ runs:
         PDK_ROOT=/home/runner/pdk
         PDK_SOURCE=$(jq -r '.PDK_SOURCE' pdk.json)
         PDK_VERSION=$(jq -r '.PDK_VERSION' pdk.json)
-        USE_CIEL=1
 
         # PDK-specific overrides
         if [ "$PDK" == "gf180mcuD" ] && [ -n "$PDK_VERSION" ]; then
           PDK_VERSION="ff08c23db8359afce3f134c454e7930586d0641c"
-        elif [ "$PDK" == "ihp-sg13g2" ]; then
-          PDK_ROOT=$GITHUB_WORKSPACE/pdk
-          USE_CIEL=0
+        elif [ "$PDK" == "ihp-sg13g2" ] && [ -n "$PDK_VERSION" ]; then
+          PDK_VERSION="cb7daaa8901016cf7c5d272dfa322c41f024931f"
         elif [ "$PDK" == "sky130A" ] && [ -n "$PDK_VERSION" ]; then
           PDK_VERSION="0536d02d875c8f67dd7cca3902ac457e62f20005"
         fi
@@ -57,7 +55,6 @@ runs:
         PDK_ROOT=$PDK_ROOT
         PDK_SOURCE=$PDK_SOURCE
         PDK_VERSION=$PDK_VERSION
-        USE_CIEL=$USE_CIEL
         __EOF
 
     - name: Set up Python
@@ -72,20 +69,11 @@ runs:
       run: pip install -r requirements.txt
 
     - name: Install ${{ env.PDK }} PDK
-      if: ${{ env.USE_CIEL == '1' }}
       uses: TinyTapeout/ciel-action@v1
       with:
         pdk_name: ${{ env.PDK }}
         pdk_version: ${{ env.PDK_VERSION }}
         pdk_root: ${{ env.PDK_ROOT }}
-
-    - name: Checkout IHP PDK repo
-      if: ${{ env.PDK == 'ihp-sg13g2' }}
-      uses: actions/checkout@v4
-      with:
-        repository: 'TinyTapeout/IHP-Open-PDK'
-        ref: 'tt2025'
-        path: ${{ env.PDK_ROOT }}
 
     - name: Install Nix
       uses: rikhuijzer/cache-install@v1.1.4
