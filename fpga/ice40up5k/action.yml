@@ -15,6 +15,16 @@ inputs:
     default: 'main'
     required: false
     type: string
+  VERILOG_DEFINES:
+    description: 'Additional Verilog preprocessor (global) defines for synthesis phase'
+    default: ''
+    required: false
+    type: string
+  YOSYS_ARGS:
+    description: 'Additional arguments to Yosys synthesis phase'
+    default: ''
+    required: false
+    type: string
 
 runs:
   using: 'composite'
@@ -43,6 +53,9 @@ runs:
 
     - name: Fetch verilog and build config
       shell: bash
+      env:
+        VERILOG_DEFINES: ${{ input.VERILOG_DEFINES }}
+        YOSYS_ARGS: ${{ input.YOSYS_ARGS }}
       run: |
         python tt/tt_tool.py --create-user-config $FLOW_ARG
 
@@ -53,6 +66,9 @@ runs:
 
     - name: Create the bitstream
       shell: bash
+      env:
+        VERILOG_DEFINES: ${{ input.VERILOG_DEFINES }}
+        YOSYS_ARGS: ${{ input.YOSYS_ARGS }}
       run: |
         python tt/tt_tool.py --create-fpga-bitstream
 
