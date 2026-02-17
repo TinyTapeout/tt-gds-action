@@ -44,8 +44,12 @@ runs:
         # PDK-specific overrides
         if [ "$PDK" == "gf180mcuD" ] && [ -n "$PDK_VERSION" ]; then
           PDK_VERSION="ff08c23db8359afce3f134c454e7930586d0641c"
-        elif [ "$PDK" == "ihp-sg13g2" ] && [ -n "$PDK_VERSION" ]; then
-          PDK_VERSION="cb7daaa8901016cf7c5d272dfa322c41f024931f"
+        # elif [ "$PDK" == "ihp-sg13g2" ] && [ -n "$PDK_VERSION" ]; then
+        elif [ "$PDK" == "ihp-sg13g2" ]; then
+          # the new IHP DRC deck needs a PDK from 2025.11.25 or later
+          # so we override PDK_VERSION from pdk.json until all projects
+          # in the shuttle are hardened with librelane >= 3.0.0.dev47
+          PDK_VERSION="c4b8b4e5e7a05f375cca3815d51b3a37721fbf5c"
         elif [ "$PDK" == "sky130A" ] && [ -n "$PDK_VERSION" ]; then
           PDK_VERSION="0536d02d875c8f67dd7cca3902ac457e62f20005"
         fi
