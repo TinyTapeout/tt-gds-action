@@ -54,7 +54,7 @@ runs:
     - name: Create the bitstream
       shell: bash
       run: |
-        python tt/tt_tool.py --create-fpga-bitstream
+        python tt/tt_fpga.py harden
 
     - name: Upload the bitstream
       if: always()
