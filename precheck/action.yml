@@ -20,14 +20,14 @@ runs:
   using: 'composite'
   steps:
     - name: Checkout tt-support-tools repo
-      uses: actions/checkout@v4
+      uses: actions/checkout@v6
       with:
         repository: '${{ inputs.tools-repo }}'
         path: tt
         ref: '${{ inputs.tools-ref }}'
 
     - name: Download GDS artifact
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v7
       with:
         name: tt_submission
 
@@ -54,7 +54,7 @@ runs:
         __EOF
 
     - name: Set up Python
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@v6
       with:
         python-version: '3.11'
         cache: 'pip'
@@ -88,7 +88,7 @@ runs:
       run: nix-shell --run "python precheck.py --gds ${{ github.workspace }}/tt_submission/*.gds* --tech ${{ env.PDK }}"
 
     - name: Test Summary
-      uses: test-summary/action@v2.3
+      uses: test-summary/action@v2.4
       with:
         paths: 'tt/precheck/reports/results.xml'
       if: always()
@@ -101,7 +101,7 @@ runs:
 
     - name: Upload reports
       if: always()
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: precheck_reports
         path: tt/precheck/reports

@@ -76,7 +76,7 @@ runs:
         fi
 
     - name: Publish tt_submission artifact
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: tt_submission
         path: |
@@ -93,14 +93,14 @@ runs:
         version: ttcache
 
     - name: Checkout tt-support-tools repo
-      uses: actions/checkout@v4
+      uses: actions/checkout@v6
       with:
         repository: "${{ inputs.tools-repo }}"
         path: tt
         ref: "${{ inputs.tools-ref }}"
 
     - name: Setup python
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@v6
       with:
         python-version: '3.11'
         cache: 'pip' # caching pip dependencies
@@ -116,7 +116,7 @@ runs:
         GDS_PATH: ${{ inputs.gds_path }}
 
     - name: Upload gds_render (png) artifact
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: gds_render
         path: 'gds_render.png'

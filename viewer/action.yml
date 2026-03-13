@@ -8,7 +8,7 @@ runs:
   using: 'composite'
   steps:
     - name: Download GDS artifact
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v7
       with:
         name: tt_submission
 
@@ -20,7 +20,7 @@ runs:
         echo "PDK=$PDK" >> $GITHUB_ENV
 
     - name: Download gds_render (png) artifact
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v7
       with:
         name: gds_render
         path: gh-pages
@@ -52,7 +52,7 @@ runs:
         EOF
 
     - name: Upload artifact
-      uses: actions/upload-pages-artifact@v3
+      uses: actions/upload-pages-artifact@v4
       with:
         path: 'gh-pages'
 

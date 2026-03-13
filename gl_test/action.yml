@@ -13,7 +13,7 @@ runs:
   using: 'composite'
   steps:
     - name: Download GDS artifact
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v7
       with:
         name: tt_submission
 
@@ -43,7 +43,7 @@ runs:
 
     # Set Python up and install cocotb
     - name: Setup python
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@v6
       with:
         python-version: '3.11'
 
@@ -79,7 +79,7 @@ runs:
 
     - name: Upload Waveform and Test Results
       if: always()
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
           name: gatelevel_test_results
           path: |
@@ -90,6 +90,6 @@ runs:
 
     - name: Test Summary
       if: always()
-      uses: test-summary/action@v2.3
+      uses: test-summary/action@v2.4
       with:
         paths: ${{ inputs.test-dir }}/results.xml

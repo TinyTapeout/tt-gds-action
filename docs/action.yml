@@ -20,7 +20,7 @@ runs:
   using: 'composite'
   steps:
     - name: Checkout tt-support-tools repo
-      uses: actions/checkout@v4
+      uses: actions/checkout@v6
       with:
         repository: "${{ inputs.tools-repo }}"
         path: tt
@@ -36,7 +36,7 @@ runs:
         fi
 
     - name: Setup python
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@v6
       with:
         python-version: '3.11'
         cache: 'pip' # caching pip dependencies
@@ -63,7 +63,7 @@ runs:
       run: ./tt/tt_tool.py --create-pdf
 
     - name: Archive PDF
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: PDF
         path: datasheet.pdf
