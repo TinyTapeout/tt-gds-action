@@ -64,12 +64,18 @@ runs:
       working-directory: tt/precheck
       run: pip install -r requirements.txt
 
-    - name: Install ${{ env.PDK }} PDK
+    - name: Install ${{ env.PDK }} PDK (ciel)
+      if: ${{ env.PDK != 'ihp-sg13cmos5l' }}
       uses: TinyTapeout/ciel-action@v1
       with:
         pdk_name: ${{ env.PDK }}
         pdk_version: ${{ env.PDK_VERSION }}
         pdk_root: ${{ env.PDK_ROOT }}
+
+    - name: Install ihp-sg13cmos5l PDK
+      if: ${{ env.PDK == 'ihp-sg13cmos5l' }}
+      shell: bash
+      run: ${{ github.action_path }}/../install_sg13cmos5l.sh
 
     - name: Install Nix
       uses: rikhuijzer/cache-install@c46c673b14b0780c6749d7a45f26ebc07c8c7388 # master + PR #27 (actions/cache v5, Node.js 24); switch back to a tag once a release includes it
