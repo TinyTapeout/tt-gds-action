@@ -22,6 +22,7 @@ inputs:
     options:
       - 'gf180mcuD'
       - 'ihp-sg13g2'
+      - 'ihp-sg13cmos5l'
       - 'sky130A'
   librelane-version:
     description: 'LibreLane version to install'
@@ -50,12 +51,13 @@ runs:
         # PDK-specific overrides
         if [ "$PDK" == "gf180mcuD" ]; then
           TT_ARGS="--gf"
-        elif [ "$PDK" == "ihp-sg13g2" ]; then
+        elif [ "$PDK" == "ihp-sg13g2" ] || [ "$PDK" == "ihp-sg13cmos5l" ]; then
           TT_ARGS="--ihp"
         fi
 
         cat << __EOF >> $GITHUB_ENV
         PDK=$PDK
+        PDK_ROOT=$PDK_ROOT
         TT_ARGS=$TT_ARGS
         __EOF
 
@@ -86,6 +88,11 @@ runs:
     - name: Fetch verilog and build config
       shell: bash
       run: ./tt/tt_tool.py --create-user-config $TT_ARGS
+
+    - name: Install ihp-sg13cmos5l PDK
+      if: ${{ inputs.pdk == 'ihp-sg13cmos5l' }}
+      shell: bash
+      run: ${{ github.action_path }}/install_sg13cmos5l.sh
 
     - name: Install LibreLane
       shell: bash

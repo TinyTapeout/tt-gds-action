@@ -34,12 +34,18 @@ runs:
         PDK_VERSION=$PDK_VERSION
         __EOF
 
-    - name: Install ${{ env.PDK }} PDK
+    - name: Install ${{ env.PDK }} PDK (ciel)
+      if: ${{ env.PDK != 'ihp-sg13cmos5l' }}
       uses: TinyTapeout/ciel-action@v1
       with:
         pdk_name: ${{ env.PDK }}
         pdk_version: ${{ env.PDK_VERSION }}
         pdk_root: ${{ env.PDK_ROOT }}
+
+    - name: Install ihp-sg13cmos5l PDK
+      if: ${{ env.PDK == 'ihp-sg13cmos5l' }}
+      shell: bash
+      run: ${{ github.action_path }}/../install_sg13cmos5l.sh
 
     # Set Python up and install cocotb
     - name: Setup python
