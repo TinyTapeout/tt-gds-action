@@ -7,12 +7,12 @@ branding:
 inputs:
   tools-repo:
     description: 'Override tt-support-tools repository'
-    default: 'TinyTapeout/tt-support-tools'
+    default: 'htfab/tt-support-tools'
     required: false
     type: string
   tools-ref:
     description: 'Override tt-support-tools branch/tag/commit'
-    default: 'main'
+    default: 'cmos'
     required: false
     type: string
   pdk:
