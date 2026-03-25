@@ -25,7 +25,7 @@ inputs:
       - 'sky130A'
   librelane-version:
     description: 'LibreLane version to install'
-    default: '3.0.0rc1'
+    default: '3.0.0'
     required: false
     type: string
 
