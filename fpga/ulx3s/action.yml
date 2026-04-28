@@ -1,0 +1,104 @@
+name: 'Tiny Tapeout FPGA bitstream (ULX3S ECP5)'
+description: 'Generate a ULX3S ECP5 FPGA bitstream from your Tiny Tapeout project'
+
+branding:
+  color: purple
+  icon: check
+
+inputs:
+  tools-repo:
+    description: 'Override tt-support-tools repository' 
+    default: 'TinyTapeout/tt-support-tools'
+    required: false
+
+  tools-ref:
+    description: 'Override tt-support-tools branch/tag/commit'
+    default: 'main'
+    required: false
+
+  ecp5-device:
+    description: 'ECP5 device size (25k, 45k, 85k)'
+    default: '85k'
+    required: false
+
+  lpf:
+    description: 'LPF constraints file path'
+    default: 'tt/fpga/ulx3s/ulx3s_v20.lpf'
+    required: false
+
+  artifact-name:
+    description: 'Artifact base name'
+    default: 'fpga_ulx3s_ecp5'
+    required: false
+
+  uart-enabled:
+    description: 'Enable UART pin mapping in the ULX3S wrapper'
+    default: 'true'
+    required: false
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Checkout tt-support-tools repo
+      uses: actions/checkout@v6
+      with:
+        repository: "${{ inputs.tools-repo }}"
+        path: tt
+        ref: "${{ inputs.tools-ref }}"
+
+    - name: Setup python
+      uses: actions/setup-python@v6
+      with:
+        python-version: '3.11'
+        cache: 'pip' # caching pip dependencies
+
+    - name: Install tt-support-tools dependencies
+      shell: bash
+      run: pip install -r tt/requirements.txt
+
+    - name: Install Python packages
+      if: ${{ hashFiles('test/requirements.txt') != '' }}
+      shell: bash
+      run: pip install -r test/requirements.txt
+
+    - name: Fetch verilog and build config
+      shell: bash
+      run: |
+        python tt/tt_tool.py --create-user-config $FLOW_ARG
+
+    - name: Install oss-cad-suite
+      uses: YosysHQ/setup-oss-cad-suite@v4
+      with:
+        python-override: true
+        version: '2026-04-26'
+
+    - name: Create ULX3S ECP5 bitstream
+      shell: bash
+      run: |
+        echo "Building ULX3S ECP5 (${{ inputs.ecp5-device }})"
+
+        DEFINE_ARGS=""
+
+        if [ "${{ inputs.uart-enabled }}" = "true" ]; then
+            DEFINE_ARGS="--define UART_ENABLED"
+        fi
+
+        python tt/tt_fpga.py harden \
+            --name tt_um_fpga_ecp5_${{ inputs.ecp5-device }} \
+            --fpga-target ulx3s-ecp5 \
+            --ecp5-device ${{ inputs.ecp5-device }} \
+            --lpf ${{ inputs.lpf }} \
+            $DEFINE_ARGS
+
+    - name: Upload ULX3S bitstream
+      if: always()
+      uses: actions/upload-artifact@v7
+      with:
+        name: ${{ inputs.artifact-name }}_${{ inputs.ecp5-device }}
+        path: |
+          build/*
+          docs/*
+          src/*
+          info.yaml
+          LICENSE
+          ${{ inputs.lpf }}
