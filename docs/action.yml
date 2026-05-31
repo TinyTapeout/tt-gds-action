@@ -54,7 +54,7 @@ runs:
         sudo apt-get install -y pandoc
 
     - name: Install Typst
-      uses: typst-community/setup-typst@v4
+      uses: typst-community/setup-typst@v5
       with:
         typst-version: '0.13.1'
 
