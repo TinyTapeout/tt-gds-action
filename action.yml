@@ -162,7 +162,7 @@ runs:
       if: success() || failure()
       uses: actions/upload-artifact@v7
       with:
-        name: GDS_logs
+        name: "GDS_logs_${{ github.run_number }}"
         path: |
           src/*
           runs/wokwi/*
