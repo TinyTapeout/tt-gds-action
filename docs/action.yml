@@ -12,7 +12,7 @@ inputs:
     type: string
   tools-ref:
     description: 'Override tt-support-tools branch/tag/commit'
-    default: 'main'
+    default: 'ihp-sg13cmos5l'
     required: false
     type: string
 
