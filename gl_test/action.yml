@@ -73,9 +73,9 @@ runs:
         make clean
         GATES=yes make
 
-        # `make` will return success even if the tests fail, so check for failure in results.xml
+        # `make` will return success even if the tests fail, so check for failed tests in results.xml.
         test -f results.xml
-        ! grep failure results.xml
+        ! grep -E '<(failure|error)' results.xml
 
     - name: Upload Waveform and Test Results
       if: always()
