@@ -42,7 +42,7 @@ runs:
         if [ "$PDK" == "gf180mcuD" ]; then
           PDK_VERSION="e8daeda73ca8f5814dbc0b11d1d05802251a3750"
         elif [ "$PDK" == "ihp-sg13g2" ]; then
-          PDK_VERSION="c4b8b4e5e7a05f375cca3815d51b3a37721fbf5c"
+          PDK_VERSION="22f43352dd8219f9007eb659e422e0d5fe28c5fb"
         elif [ "$PDK" == "sky130A" ]; then
           PDK_VERSION="0536d02d875c8f67dd7cca3902ac457e62f20005"
         fi
