@@ -73,9 +73,14 @@ runs:
         make clean
         GATES=yes make
 
-        # `make` will return success even if the tests fail, so check for failed tests in results.xml.
-        test -f results.xml
-        ! grep -E '<(failure|error)' results.xml
+        # `make` will return success even if the tests fail, so check results.xml for failed tests.
+        if python -c 'import cocotb_tools.check_results' 2>/dev/null; then
+          python -m cocotb_tools.check_results results.xml
+        else
+          # cocotb < 2.0 does not ship cocotb_tools.check_results
+          test -f results.xml
+          ! grep -E '<(failure|error)' results.xml
+        fi
 
     - name: Upload Waveform and Test Results
       if: always()
