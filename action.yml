@@ -22,10 +22,11 @@ inputs:
     options:
       - 'gf180mcuD'
       - 'ihp-sg13g2'
+      - 'ihp-sg13cmos5l'
       - 'sky130A'
   librelane-version:
-    description: 'LibreLane version to install'
-    default: '3.0.14'
+    description: 'LibreLane version to install (default: depends on the PDK)'
+    default: ''
     required: false
     type: string
 
@@ -38,7 +39,7 @@ runs:
         # Defaults:
         PDK="${{ inputs.pdk }}"
         PDK_ROOT=/home/runner/pdk
-        TT_ARGS=""
+        LIBRELANE_VERSION="${{ inputs.librelane-version }}"
 
         # Backward compatibility with old 'pdk' values
         if [ "$PDK" == "sky130" ]; then
@@ -48,15 +49,19 @@ runs:
         fi
 
         # PDK-specific overrides
-        if [ "$PDK" == "gf180mcuD" ]; then
-          TT_ARGS="--gf"
-        elif [ "$PDK" == "ihp-sg13g2" ]; then
-          TT_ARGS="--ihp"
+        if [ -z "$LIBRELANE_VERSION" ]; then
+          if [ "$PDK" == "ihp-sg13cmos5l" ]; then
+            # sg13cmos5l needs Magic >= 8.3.657 and ciel >= 3, both introduced in LibreLane 3.1
+            LIBRELANE_VERSION="3.1.0.dev4"
+          else
+            LIBRELANE_VERSION="3.0.14"
+          fi
         fi
 
         cat << __EOF >> $GITHUB_ENV
         PDK=$PDK
-        TT_ARGS=$TT_ARGS
+        TT_ARGS=--pdk $PDK
+        LIBRELANE_VERSION=$LIBRELANE_VERSION
         __EOF
 
     # Install packages for 'Render PNG from GDS' step and ghdl to process VHDL files:
@@ -89,7 +94,7 @@ runs:
 
     - name: Install LibreLane
       shell: bash
-      run: pip install librelane==${{ inputs.librelane-version }}
+      run: pip install librelane==$LIBRELANE_VERSION
 
     - name: Make GDS with LibreLane
       shell: bash

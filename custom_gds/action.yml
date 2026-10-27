@@ -12,6 +12,7 @@ inputs:
     options:
       - 'sky130A'
       - 'ihp-sg13g2'
+      - 'ihp-sg13cmos5l'
       - 'gf180mcuD'
   top_module:
     description: 'The name of the top module (e.g. tt_um_example)'
