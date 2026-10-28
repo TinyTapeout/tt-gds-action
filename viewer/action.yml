@@ -51,14 +51,19 @@ runs:
           </html>
         EOF
 
+    # Re-running the workflow keeps the artifacts of previous attempts, so use a
+    # unique artifact name per attempt (deploy-pages fails if the name is ambiguous)
     - name: Upload artifact
       uses: actions/upload-pages-artifact@v5
       with:
         path: 'gh-pages'
+        name: github-pages-${{ github.run_attempt }}
 
     - name: Deploy to GitHub Pages
       id: deployment
       uses: actions/deploy-pages@v5
+      with:
+        artifact_name: github-pages-${{ github.run_attempt }}
 
     - name: Check for failure
       if: failure()
