@@ -60,9 +60,10 @@ runs:
     - name: Install KLayout
       shell: bash
       run: |
-        wget https://github.com/TinyTapeout/klayout/releases/download/v0.29.12/klayout_0.29.12-1_amd64.deb
-        sudo apt-get update && sudo apt-get install -y ./klayout_0.29.12-1_amd64.deb
-        pip install klayout==0.29.12
+        # Use the KLayout package built for the runner's Ubuntu release
+        source /etc/os-release
+        wget https://github.com/TinyTapeout/klayout/releases/download/v0.30.12/klayout_0.30.12-1_ubuntu${VERSION_ID}_amd64.deb
+        sudo apt-get update && sudo apt-get install -y ./klayout_0.30.12-1_ubuntu${VERSION_ID}_amd64.deb
 
     - name: Copy GDS / LEF files to tt_submission
       shell: bash
