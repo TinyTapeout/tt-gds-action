@@ -15,10 +15,29 @@ inputs:
     default: 'main'
     required: false
     type: string
+  pdk:
+    description: 'PDK used for info.yaml checks'
+    required: false  # TODO make it required once all project repos have it
+    default: 'sky130A'
+    type: choice
+    options:
+      - 'gf180mcuD'
+      - 'ihp-sg13g2'
+      - 'ihp-sg13cmos5l'
+      - 'sky130A'
 
 runs:
   using: 'composite'
   steps:
+    - name: Set up environment variables
+      shell: bash
+      run: |
+        PDK="${{ inputs.pdk }}"
+        cat << __EOF >> $GITHUB_ENV
+        PDK=$PDK
+        TT_ARGS=--pdk $PDK
+        __EOF
+
     - name: Checkout tt-support-tools repo
       uses: actions/checkout@v6
       with:
@@ -45,7 +64,7 @@ runs:
 
     - name: Check info.yaml and docs/info.md
       shell: bash
-      run: ./tt/tt_tool.py --check-docs | tee -a ${GITHUB_STEP_SUMMARY}
+      run: ./tt/tt_tool.py --check-docs $TT_ARGS | tee -a ${GITHUB_STEP_SUMMARY}
 
     - name: Install Pandoc
       shell: bash
@@ -60,7 +79,7 @@ runs:
 
     - name: Create PDF
       shell: bash
-      run: ./tt/tt_tool.py --create-pdf
+      run: ./tt/tt_tool.py --create-pdf $TT_ARGS
 
     - name: Archive PDF
       uses: actions/upload-artifact@v7
