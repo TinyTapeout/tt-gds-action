@@ -59,6 +59,14 @@ runs:
         path: 'gh-pages'
         name: github-pages-${{ github.run_attempt }}
 
+    # A freshly uploaded artifact can be missing from the listing deploy-pages
+    # reads for a few seconds, and deploy-pages fails at once if it is not there
+    - name: Wait for the artifact to be listed
+      uses: actions/github-script@v8
+      with:
+        script: |
+          await require('${{ github.action_path }}/wait-for-artifact.js')({ core, name: 'github-pages-${{ github.run_attempt }}' })
+
     - name: Deploy to GitHub Pages
       id: deployment
       uses: actions/deploy-pages@v5
